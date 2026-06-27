@@ -187,8 +187,9 @@ function AppContent() {
             {error?.toLowerCase().includes('openai') && error?.toLowerCase().includes('quota') && (
               <p className="mt-2 border-t border-red-200 pt-2 dark:border-red-800">
                 Use the free Groq key instead: add{' '}
-                <code className="rounded bg-red-100 px-1 dark:bg-red-900">GROQ_API_KEY</code> to{' '}
-                <code className="rounded bg-red-100 px-1 dark:bg-red-900">.env</code> from{' '}
+                <code className="rounded bg-red-100 px-1 dark:bg-red-900">GROQ_API_KEY</code> in{' '}
+                Render Dashboard → Environment, or in{' '}
+                <code className="rounded bg-red-100 px-1 dark:bg-red-900">.env</code> for local dev (
                 <a
                   href="https://console.groq.com/keys"
                   target="_blank"
@@ -197,7 +198,7 @@ function AppContent() {
                 >
                   console.groq.com/keys
                 </a>
-                , then restart <code className="rounded bg-red-100 px-1 dark:bg-red-900">npm run dev</code>.
+                ).
               </p>
             )}
           </div>

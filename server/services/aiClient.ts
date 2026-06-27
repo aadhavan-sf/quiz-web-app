@@ -29,7 +29,7 @@ function getApiKeyForProvider(provider: AiProvider): string | null {
 
 export function getAiSetupMessage(): string {
   if (getAiProvider() === 'openai') {
-    return 'AI is not configured. Add OPENAI_API_KEY to .env locally, or in Vercel Project Settings → Environment Variables.'
+    return 'AI is not configured. Add OPENAI_API_KEY to .env locally, or in Render Dashboard → Environment.'
   }
   return 'AI is not configured. Add GROQ_API_KEY in Render Dashboard → Environment (or in .env for local dev).'
 }
@@ -79,9 +79,9 @@ export function formatOpenAIError(error: unknown): string {
 
     if (status === 401) {
       if (provider === 'groq') {
-        return 'Groq rejected your API key. Update GROQ_API_KEY in .env and restart npm run dev.'
+        return 'Groq rejected your API key. Update GROQ_API_KEY in Render Environment or .env for local dev.'
       }
-      return 'OpenAI rejected your API key. Update OPENAI_API_KEY in .env and restart npm run dev.'
+      return 'OpenAI rejected your API key. Update OPENAI_API_KEY in Render Environment or .env for local dev.'
     }
     if (status === 429) {
       if (provider === 'groq') {
