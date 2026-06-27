@@ -110,10 +110,15 @@ const hardQuestions = [
   { question: "In a senior interview: how would you document and govern a Power BI enterprise deployment?", options: ["Skip documentation", "Define naming standards, deployment pipelines, workspace strategy, RLS governance, and certified dataset promotion", "Email PBIX files directly", "Use only personal workspaces"], correctAnswer: 1, explanation: "Enterprise governance includes certified datasets, deployment pipelines, workspace tiers, RLS audits, documentation, and a center of excellence." },
 ]
 
-function shuffle(array) {
+function seededShuffle(array, seed = 20260327) {
   const result = [...array]
+  let state = seed
+  const random = () => {
+    state = (state * 1664525 + 1013904223) >>> 0
+    return state / 0xffffffff
+  }
   for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
+    const j = Math.floor(random() * (i + 1))
     ;[result[i], result[j]] = [result[j], result[i]]
   }
   return result
@@ -123,7 +128,7 @@ if (easyQuestions.length !== 50 || hardQuestions.length !== 50) {
   throw new Error(`Expected 50 easy and 50 hard questions, got ${easyQuestions.length} easy and ${hardQuestions.length} hard`)
 }
 
-const questions = shuffle([...easyQuestions, ...hardQuestions]).map((q, index) => ({
+const questions = seededShuffle([...easyQuestions, ...hardQuestions]).map((q, index) => ({
   id: index + 1,
   ...q,
 }))
