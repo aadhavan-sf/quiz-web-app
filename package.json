@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "generate-questions": "node scripts/generate-questions.mjs"
+    "generate-questions": "node scripts/generate-questions.mjs",
+    "deploy": "npm run generate-questions && npm run build && git add -A && git diff --cached --quiet || git commit -m 'chore: deploy updated quiz' && git push origin main"
   },
   "dependencies": {
     "framer-motion": "^12.42.0",
