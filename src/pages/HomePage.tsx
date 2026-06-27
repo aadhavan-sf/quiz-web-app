@@ -53,7 +53,8 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
   }, [])
 
   const formComplete = fullName.trim().length >= 2 && topic.trim().length >= 2
-  const canGenerate = formComplete && aiConfigured === true
+  const canGenerate = formComplete
+
   const onGitHubPages = isGitHubPagesHost()
   const onLocalDev = isLocalDevHost()
 
@@ -274,13 +275,11 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
             >
               {mode === 'mcq' ? 'Generate Questions' : 'Start Interview'}
             </motion.button>
-            {formComplete && aiConfigured !== true && (
-              <p className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
-                {aiConfigured === null
-                  ? 'Checking AI server…'
-                  : onGitHubPages
-                    ? 'Waiting for AI server — deploy to Vercel with your Groq key to enable this button.'
-                    : 'Add your Groq API key to .env and restart npm run dev to enable this button.'}
+            {formComplete && aiConfigured === false && (
+              <p className="mt-3 text-center text-sm text-amber-700 dark:text-amber-300">
+                {onGitHubPages
+                  ? 'AI server is not on GitHub Pages — you can try anyway, or use localhost / Vercel.'
+                  : 'AI key not detected — add GROQ_API_KEY to .env and restart npm run dev.'}
               </p>
             )}
           </div>
