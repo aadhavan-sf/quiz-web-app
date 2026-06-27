@@ -39,6 +39,24 @@ function isLocalDevHost(): boolean {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 }
 
+function isVercelHost(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.location.hostname.endsWith('.vercel.app')
+}
+
+function aiSetupHint(onGitHubPages: boolean, onLocalDev: boolean, onVercel: boolean): string {
+  if (onGitHubPages) {
+    return 'AI server is not on GitHub Pages — use your Vercel URL instead.'
+  }
+  if (onVercel) {
+    return 'Add GROQ_API_KEY in Vercel → Project Settings → Environment Variables, then redeploy.'
+  }
+  if (onLocalDev) {
+    return 'Add GROQ_API_KEY to .env and restart npm run dev.'
+  }
+  return 'AI key not configured on the server.'
+}
+
 export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
   const [fullName, setFullName] = useState('')
   const [topic, setTopic] = useState('')
@@ -57,6 +75,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
 
   const onGitHubPages = isGitHubPagesHost()
   const onLocalDev = isLocalDevHost()
+  const onVercel = isVercelHost()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -135,6 +154,52 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                 <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code>
               </li>
             </ol>
+          </motion.div>
+        )}
+
+        {aiConfigured === false && onVercel && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+          >
+            <p className="font-semibold">Groq API key missing on Vercel</p>
+            <ol className="mt-2 list-decimal space-y-1 pl-5">
+              <li>
+                Open your project on{' '}
+                <a
+                  href="https://vercel.com/dashboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium underline"
+                >
+                  vercel.com/dashboard
+                </a>
+              </li>
+              <li>
+                Go to <strong>Settings → Environment Variables</strong>
+              </li>
+              <li>
+                Add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">AI_PROVIDER</code>{' '}
+                = <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">groq</code>
+              </li>
+              <li>
+                Add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY</code>{' '}
+                = your key from{' '}
+                <a
+                  href="https://console.groq.com/keys"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium underline"
+                >
+                  console.groq.com/keys
+                </a>
+              </li>
+              <li>
+                Redeploy: <strong>Deployments → ⋯ → Redeploy</strong>
+              </li>
+            </ol>
+            <p className="mt-2 text-xs">Visitors do not need their own key — only you set this once.</p>
           </motion.div>
         )}
 
@@ -277,9 +342,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
             </motion.button>
             {formComplete && aiConfigured === false && (
               <p className="mt-3 text-center text-sm text-amber-700 dark:text-amber-300">
-                {onGitHubPages
-                  ? 'AI server is not on GitHub Pages — you can try anyway, or use localhost / Vercel.'
-                  : 'AI key not detected — add GROQ_API_KEY to .env and restart npm run dev.'}
+                {aiSetupHint(onGitHubPages, onLocalDev, onVercel)}
               </p>
             )}
           </div>
