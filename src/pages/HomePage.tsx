@@ -29,6 +29,16 @@ const TOPIC_EXAMPLES = [
   'UI Design',
 ]
 
+function isGitHubPagesHost(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.location.hostname.endsWith('github.io')
+}
+
+function isLocalDevHost(): boolean {
+  if (typeof window === 'undefined') return false
+  return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+}
+
 export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
   const [fullName, setFullName] = useState('')
   const [topic, setTopic] = useState('')
@@ -42,8 +52,10 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
       .catch(() => setAiConfigured(false))
   }, [])
 
-  const canGenerate =
-    fullName.trim().length >= 2 && topic.trim().length >= 2 && aiConfigured === true
+  const formComplete = fullName.trim().length >= 2 && topic.trim().length >= 2
+  const canGenerate = formComplete && aiConfigured === true
+  const onGitHubPages = isGitHubPagesHost()
+  const onLocalDev = isLocalDevHost()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -91,7 +103,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           </p>
         </motion.div>
 
-        {aiConfigured === false && (
+        {aiConfigured === false && onLocalDev && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -122,6 +134,28 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                 <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code>
               </li>
             </ol>
+          </motion.div>
+        )}
+
+        {aiConfigured === false && onGitHubPages && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+          >
+            <p className="font-semibold">AI server not connected</p>
+            <p className="mt-2">
+              GitHub Pages only hosts the website files — it cannot run the AI backend. To start
+              interviews, use the app on{' '}
+              <strong>Vercel</strong> (recommended) or run{' '}
+              <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code> on
+              your computer.
+            </p>
+            <p className="mt-2">
+              Deploy to Vercel, add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY</code>{' '}
+              in project settings, then share that URL with users — they do not need their own API
+              key.
+            </p>
           </motion.div>
         )}
 
@@ -240,6 +274,15 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
             >
               {mode === 'mcq' ? 'Generate Questions' : 'Start Interview'}
             </motion.button>
+            {formComplete && aiConfigured !== true && (
+              <p className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
+                {aiConfigured === null
+                  ? 'Checking AI server…'
+                  : onGitHubPages
+                    ? 'Waiting for AI server — deploy to Vercel with your Groq key to enable this button.'
+                    : 'Add your Groq API key to .env and restart npm run dev to enable this button.'}
+              </p>
+            )}
           </div>
         </motion.form>
       </div>

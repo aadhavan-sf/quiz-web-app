@@ -33,6 +33,7 @@ jobs:
       - name: Build
         env:
           VITE_BASE_PATH: /quiz-web-app/
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
       - name: Add SPA fallback for GitHub Pages
