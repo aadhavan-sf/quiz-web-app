@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { createInterviewHandler } from './_utils.js'
+import { createInterviewHandler } from '../_utils.js'
 import { startInterview, validateInterviewStart } from '../server/services/interviewService.js'
 
 export default createInterviewHandler(async (req: VercelRequest, res: VercelResponse) => {

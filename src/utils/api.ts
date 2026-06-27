@@ -38,6 +38,11 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   try {
     data = JSON.parse(text) as { error?: string }
   } catch {
+    if (!response.ok) {
+      throw new Error(
+        text.trim() || `Server error (${response.status}). Check Vercel logs and ensure GROQ_API_KEY is set.`,
+      )
+    }
     throw new Error('Invalid response from server. Please try again.')
   }
 
