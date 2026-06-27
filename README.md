@@ -7,17 +7,16 @@ A modern AI-powered interview preparation platform. Generate fresh, high-quality
 - **Two practice modes:** MCQ Practice and Interview Practice
 - AI-generated questions for any technical or professional topic
 - **MCQ Mode:** Multiple-choice with instant feedback and explanations
-- **Interview Mode:** Open-ended questions, voice recording, AI evaluation, and hiring-manager report
+- **Interview Mode:** Open-ended questions, typed answers, AI evaluation, and hiring-manager report
 - Configurable question count (25–200) and difficulty (Easy, Intermediate, Advanced, Mixed)
 - Dark and light mode
 - Progress saved in Local Storage
-- Deployable to Vercel
 
 ## Tech Stack
 
 - **Frontend:** React, TypeScript, Tailwind CSS, Framer Motion
 - **Backend:** Node.js, Express, Groq API (free) or OpenAI API
-- **Deployment:** Vercel (serverless API + static frontend)
+- **Deployment:** [Render](https://render.com) (free tier — frontend + API in one service)
 
 ## Local Development
 
@@ -34,8 +33,6 @@ AI_PROVIDER=groq
 GROQ_API_KEY=gsk_your_key_here
 ```
 
-To use OpenAI instead, set `AI_PROVIDER=openai` and add `OPENAI_API_KEY`.
-
 3. Install and run:
 
 ```bash
@@ -46,33 +43,36 @@ npm run dev
 - Frontend: http://localhost:5173
 - API: http://localhost:3001
 
-Without an API key, the configure screen shows setup instructions.
+## Deploy to Render (free)
 
-## Deploy to Vercel
+1. Push this repo to GitHub
+2. Go to [dashboard.render.com](https://dashboard.render.com) → **New +** → **Blueprint**
+3. Connect the `quiz-web-app` repository — Render reads `render.yaml` automatically
+4. Or create a **Web Service** manually:
+   - **Build command:** `npm install && npm run build`
+   - **Start command:** `npm start`
+   - **Plan:** Free
+5. Add environment variables in **Environment**:
+   - `AI_PROVIDER` = `groq`
+   - `GROQ_API_KEY` = your key from [console.groq.com/keys](https://console.groq.com/keys)
+   - `NODE_ENV` = `production` (set automatically by `render.yaml`)
+6. Deploy — your app URL will be like `https://quiz-web-app.onrender.com`
 
-1. Import the repository to Vercel
-2. Add `GROQ_API_KEY` (and optionally `AI_PROVIDER=groq`) in Project Settings → Environment Variables
-3. Deploy
-
-```bash
-npm run deploy
-```
+**Free tier note:** The service sleeps after 15 minutes of no traffic. The first visit after sleep may take 30–60 seconds to wake up.
 
 ## Project Structure
 
 ```
-├── api/                  # Vercel serverless functions
-├── server/               # Express API (local dev)
+├── render.yaml           # Render deployment config
+├── server/               # Express API + production static hosting
 │   └── services/         # AI prompt engineering & generation
 ├── shared/               # Shared TypeScript types
 └── src/                  # React frontend
-    ├── components/
-    ├── hooks/
-    ├── pages/
-    └── utils/
 ```
 
 ## API
+
+`GET /api/health` — Check AI configuration
 
 `POST /api/generate-questions` — MCQ question generation
 

@@ -25,7 +25,7 @@ function apiDevServer(): Plugin {
   }
 }
 
-export default defineConfig(({ mode }) => ({
-  base: process.env.VITE_BASE_PATH || (mode === 'production' ? '/quiz-web-app/' : '/'),
+export default defineConfig(() => ({
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [react(), tailwindcss(), apiDevServer()],
 }))

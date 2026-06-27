@@ -39,17 +39,21 @@ function isLocalDevHost(): boolean {
   return window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
 }
 
-function isVercelHost(): boolean {
+function isRenderHost(): boolean {
   if (typeof window === 'undefined') return false
-  return window.location.hostname.endsWith('.vercel.app')
+  return window.location.hostname.endsWith('.onrender.com')
 }
 
-function aiSetupHint(onGitHubPages: boolean, onLocalDev: boolean, onVercel: boolean): string {
+function aiSetupHint(
+  onGitHubPages: boolean,
+  onLocalDev: boolean,
+  onRender: boolean,
+): string {
   if (onGitHubPages) {
-    return 'AI server is not on GitHub Pages — use your Vercel URL instead.'
+    return 'AI server is not on GitHub Pages — use your Render URL instead.'
   }
-  if (onVercel) {
-    return 'Add GROQ_API_KEY in Vercel → Project Settings → Environment Variables, then redeploy.'
+  if (onRender) {
+    return 'Add GROQ_API_KEY in Render Dashboard → Environment, then redeploy.'
   }
   if (onLocalDev) {
     return 'Add GROQ_API_KEY to .env and restart npm run dev.'
@@ -75,7 +79,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
 
   const onGitHubPages = isGitHubPagesHost()
   const onLocalDev = isLocalDevHost()
-  const onVercel = isVercelHost()
+  const onRender = isRenderHost()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -157,27 +161,27 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           </motion.div>
         )}
 
-        {aiConfigured === false && onVercel && (
+        {aiConfigured === false && onRender && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
           >
-            <p className="font-semibold">Groq API key missing on Vercel</p>
+            <p className="font-semibold">Groq API key missing on Render</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
               <li>
-                Open your project on{' '}
+                Open your service on{' '}
                 <a
-                  href="https://vercel.com/dashboard"
+                  href="https://dashboard.render.com"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium underline"
                 >
-                  vercel.com/dashboard
+                  dashboard.render.com
                 </a>
               </li>
               <li>
-                Go to <strong>Settings → Environment Variables</strong>
+                Go to <strong>Environment</strong> in the left sidebar
               </li>
               <li>
                 Add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">AI_PROVIDER</code>{' '}
@@ -196,7 +200,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                 </a>
               </li>
               <li>
-                Redeploy: <strong>Deployments → ⋯ → Redeploy</strong>
+                Click <strong>Save Changes</strong> — Render redeploys automatically
               </li>
             </ol>
             <p className="mt-2 text-xs">Visitors do not need their own key — only you set this once.</p>
@@ -213,13 +217,13 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
             <p className="mt-2">
               GitHub Pages only hosts the website files — it cannot run the AI backend. To start
               interviews, use the app on{' '}
-              <strong>Vercel</strong> (recommended) or run{' '}
+              <strong>Render</strong> (recommended) or run{' '}
               <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code> on
               your computer.
             </p>
             <p className="mt-2">
-              Deploy to Vercel, add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY</code>{' '}
-              in project settings, then share that URL with users — they do not need their own API
+              Deploy to Render, add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY</code>{' '}
+              in Environment settings, then share that URL with users — they do not need their own API
               key.
             </p>
           </motion.div>
@@ -342,7 +346,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
             </motion.button>
             {formComplete && aiConfigured === false && (
               <p className="mt-3 text-center text-sm text-amber-700 dark:text-amber-300">
-                {aiSetupHint(onGitHubPages, onLocalDev, onVercel)}
+                {aiSetupHint(onGitHubPages, onLocalDev, onRender)}
               </p>
             )}
           </div>

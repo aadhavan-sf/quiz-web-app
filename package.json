@@ -8,6 +8,7 @@
     "dev:client": "vite",
     "dev:server": "tsx watch server/index.ts",
     "build": "tsc -b && vite build",
+    "start": "tsx server/index.ts",
     "lint": "oxlint",
     "preview": "vite preview",
     "deploy": "npm run build"
@@ -19,7 +20,8 @@
     "framer-motion": "^12.42.0",
     "openai": "^4.104.0",
     "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react-dom": "^19.2.7",
+    "tsx": "^4.20.3"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.1",
@@ -33,7 +35,6 @@
     "concurrently": "^9.2.0",
     "oxlint": "^1.69.0",
     "tailwindcss": "^4.3.1",
-    "tsx": "^4.20.3",
     "typescript": "~6.0.2",
     "vite": "^8.1.0"
   }

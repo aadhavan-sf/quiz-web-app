@@ -22,7 +22,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
     })
   } catch {
     throw new Error(
-      'Cannot reach the API server. Run "npm run dev" locally or deploy to Vercel with GROQ_API_KEY set.',
+      'Cannot reach the API server. Run "npm run dev" locally or deploy to Render with GROQ_API_KEY set.',
     )
   }
 
@@ -30,7 +30,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
 
   if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
     throw new Error(
-      'API returned HTML instead of JSON. The backend is not running — use "npm run dev" locally, or deploy to Vercel (GitHub Pages does not support the AI API).',
+      'API returned HTML instead of JSON. The backend is not running — use "npm run dev" locally, or deploy to Render.',
     )
   }
 
@@ -40,7 +40,7 @@ async function post<T>(path: string, body: unknown): Promise<T> {
   } catch {
     if (!response.ok) {
       throw new Error(
-        text.trim() || `Server error (${response.status}). Check Vercel logs and ensure GROQ_API_KEY is set.`,
+        text.trim() || `Server error (${response.status}). Check Render logs and ensure GROQ_API_KEY is set.`,
       )
     }
     throw new Error('Invalid response from server. Please try again.')
