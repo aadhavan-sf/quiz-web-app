@@ -1,46 +1,83 @@
-# Power BI Interview Quiz
+# AI Interview Practice
 
-Practice 100 real Power BI interview questions with instant feedback and explanations.
+A modern AI-powered interview preparation platform. Generate fresh, high-quality interview questions for any topic using AI.
 
-## Live site
+## Features
 
-https://aadhavan-sf.github.io/quiz-web-app/
+- **Two practice modes:** MCQ Practice and Interview Practice
+- AI-generated questions for any technical or professional topic
+- **MCQ Mode:** Multiple-choice with instant feedback and explanations
+- **Interview Mode:** Open-ended questions, voice recording, AI evaluation, and hiring-manager report
+- Configurable question count (25–200) and difficulty (Easy, Intermediate, Advanced, Mixed)
+- Dark and light mode
+- Progress saved in Local Storage
+- Deployable to Vercel
 
-## Local development
+## Tech Stack
+
+- **Frontend:** React, TypeScript, Tailwind CSS, Framer Motion
+- **Backend:** Node.js, Express, Groq API (free) or OpenAI API
+- **Deployment:** Vercel (serverless API + static frontend)
+
+## Local Development
+
+1. Copy environment variables:
+
+```bash
+cp .env.example .env
+```
+
+2. Add a free `GROQ_API_KEY` to `.env` (get one at [console.groq.com](https://console.groq.com) — no credit card)
+
+```env
+AI_PROVIDER=groq
+GROQ_API_KEY=gsk_your_key_here
+```
+
+To use OpenAI instead, set `AI_PROVIDER=openai` and add `OPENAI_API_KEY`.
+
+3. Install and run:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open http://localhost:5173/
+- Frontend: http://localhost:5173
+- API: http://localhost:3001
 
-## GitHub Pages setup (one-time)
+Without an API key, the configure screen shows setup instructions.
 
-If the live site shows a 404, enable Pages in the repo:
+## Deploy to Vercel
 
-1. Go to **Settings → Pages**
-2. Under **Build and deployment**, set **Source** to **GitHub Actions**
-3. Re-run the latest workflow under **Actions**, or push a new commit
-
-The site will be available at https://aadhavan-sf.github.io/quiz-web-app/
-
-## Swap question banks
-
-Replace `src/data/questions.json` with any JSON array using this schema:
-
-```json
-{
-  "id": 1,
-  "question": "...",
-  "options": ["...", "...", "...", "..."],
-  "correctAnswer": 0,
-  "explanation": "..."
-}
-```
-
-Regenerate Power BI questions:
+1. Import the repository to Vercel
+2. Add `GROQ_API_KEY` (and optionally `AI_PROVIDER=groq`) in Project Settings → Environment Variables
+3. Deploy
 
 ```bash
-npm run generate-questions
+npm run deploy
 ```
+
+## Project Structure
+
+```
+├── api/                  # Vercel serverless functions
+├── server/               # Express API (local dev)
+│   └── services/         # AI prompt engineering & generation
+├── shared/               # Shared TypeScript types
+└── src/                  # React frontend
+    ├── components/
+    ├── hooks/
+    ├── pages/
+    └── utils/
+```
+
+## API
+
+`POST /api/generate-questions` — MCQ question generation
+
+`POST /api/interview/start` — Start interview session (first question)
+
+`POST /api/interview/evaluate` — Evaluate an interview answer
+
+`POST /api/interview/report` — Generate final interview report

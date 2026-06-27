@@ -1,37 +1,37 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { QuizDashboard } from '../components/QuizDashboard'
 import { QuestionCard } from '../components/QuestionCard'
-import { QuestionNav } from '../components/QuestionNav'
+import { LeaveSessionButton } from '../components/LeaveSessionButton'
 import { useTimer } from '../hooks/useLocalStorage'
-import type { Question } from '../types/question'
 import type { useQuiz } from '../hooks/useQuiz'
 
 type QuizHookReturn = ReturnType<typeof useQuiz>
 
 interface QuizPageProps {
-  userName: string
-  questions: Question[]
   quiz: QuizHookReturn
   onComplete: () => void
+  onLeave: () => void
 }
 
-export function QuizPage({ userName, questions, quiz, onComplete }: QuizPageProps) {
+export function QuizPage({ quiz, onComplete, onLeave }: QuizPageProps) {
   const {
     quizState,
     currentQuestion,
     currentAnswer,
     currentIndex,
     submitAnswer,
-    goToQuestion,
     goToNextQuestion,
     stats,
     progress,
     isComplete,
   } = quiz
 
-  const elapsedSeconds = useTimer(true, quizState.startedAt)
+  const elapsedSeconds = useTimer(true, quizState?.startedAt ?? null)
 
-  const isLastQuestion = currentIndex === questions.length - 1
+  if (!quizState || !currentQuestion) return null
+
+  const { config } = quizState
+  const isLastQuestion = currentIndex === quizState.questions.length - 1
   const canGoNext = currentAnswer !== null
 
   const handleNext = () => {
@@ -42,8 +42,6 @@ export function QuizPage({ userName, questions, quiz, onComplete }: QuizPageProp
     }
   }
 
-  if (!currentQuestion) return null
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -52,24 +50,29 @@ export function QuizPage({ userName, questions, quiz, onComplete }: QuizPageProp
       className="min-h-screen px-4 py-6 sm:px-6 sm:py-8"
     >
       <div className="mx-auto max-w-4xl space-y-6">
+        <div className="flex justify-end">
+          <LeaveSessionButton
+            onConfirm={onLeave}
+            message={
+              stats.answered > 0
+                ? 'You will be taken to your results based on the questions you have answered so far.'
+                : 'You have not answered any questions yet. Leaving will return you to the home screen.'
+            }
+          />
+        </div>
+
         <QuizDashboard
-          userName={userName}
+          userName={config.fullName}
+          topic={config.topic}
+          difficulty={config.difficulty}
           currentQuestion={currentIndex + 1}
-          totalQuestions={questions.length}
+          totalQuestions={quizState.questions.length}
           progress={progress}
           correctCount={stats.correct}
           wrongCount={stats.wrong}
+          answeredCount={stats.answered}
           elapsedSeconds={elapsedSeconds}
         />
-
-        <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-          <QuestionNav
-            totalQuestions={questions.length}
-            currentIndex={currentIndex}
-            answers={quizState.answers}
-            onNavigate={goToQuestion}
-          />
-        </div>
 
         <AnimatePresence mode="wait">
           <QuestionCard

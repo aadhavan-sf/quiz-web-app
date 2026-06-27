@@ -1,27 +1,22 @@
 import { useCallback, useMemo } from 'react'
-import type { AnswerRecord, Question, QuizState } from '../types/question'
+import type { AnswerRecord, QuizState } from '../types/question'
 import { getQuizStateKey } from '../utils/storage'
 import { useLocalStorage } from './useLocalStorage'
 
-const initialQuizState: QuizState = {
-  answers: {},
-  currentQuestionIndex: 0,
-  startedAt: Date.now(),
-}
-
-export function useQuiz(questions: Question[]) {
+export function useQuiz() {
   const [quizState, setQuizState, clearQuizState] = useLocalStorage<QuizState | null>(
     getQuizStateKey(),
     null,
   )
 
-  const startQuiz = useCallback(() => {
-    setQuizState({
-      answers: {},
-      currentQuestionIndex: 0,
-      startedAt: Date.now(),
-    })
-  }, [setQuizState])
+  const questions = quizState?.questions ?? []
+
+  const initQuiz = useCallback(
+    (state: QuizState) => {
+      setQuizState(state)
+    },
+    [setQuizState],
+  )
 
   const resetQuiz = useCallback(() => {
     clearQuizState()
@@ -29,20 +24,13 @@ export function useQuiz(questions: Question[]) {
 
   const currentQuestion = useMemo(() => {
     if (!quizState) return null
-    return questions[quizState.currentQuestionIndex] ?? null
-  }, [quizState, questions])
+    return quizState.questions[quizState.currentQuestionIndex] ?? null
+  }, [quizState])
 
   const currentAnswer = useMemo(() => {
     if (!quizState || !currentQuestion) return null
     return quizState.answers[currentQuestion.id] ?? null
   }, [quizState, currentQuestion])
-
-  const isQuestionAnswered = useCallback(
-    (questionId: number) => {
-      return quizState?.answers[questionId] !== undefined
-    },
-    [quizState],
-  )
 
   const submitAnswer = useCallback(
     (questionId: number, selectedAnswer: number, correctAnswer: number) => {
@@ -65,11 +53,10 @@ export function useQuiz(questions: Question[]) {
     (index: number) => {
       if (!quizState) return
       if (index > quizState.currentQuestionIndex) return
-      if (index < 0 || index >= questions.length) return
-
+      if (index < 0 || index >= quizState.questions.length) return
       setQuizState({ ...quizState, currentQuestionIndex: index })
     },
-    [quizState, questions.length, setQuizState],
+    [quizState, setQuizState],
   )
 
   const goToNextQuestion = useCallback(() => {
@@ -77,41 +64,43 @@ export function useQuiz(questions: Question[]) {
     if (!quizState.answers[currentQuestion.id]) return
 
     const nextIndex = quizState.currentQuestionIndex + 1
-    if (nextIndex >= questions.length) return
+    if (nextIndex >= quizState.questions.length) return
 
     setQuizState({ ...quizState, currentQuestionIndex: nextIndex })
-  }, [quizState, currentQuestion, questions.length, setQuizState])
+  }, [quizState, currentQuestion, setQuizState])
 
   const stats = useMemo(() => {
-    if (!quizState) return { correct: 0, wrong: 0 }
+    if (!quizState) return { correct: 0, wrong: 0, answered: 0, remaining: 0 }
     const values = Object.values(quizState.answers)
+    const answered = values.length
     return {
       correct: values.filter((a) => a.isCorrect).length,
       wrong: values.filter((a) => !a.isCorrect).length,
+      answered,
+      remaining: quizState.questions.length - answered,
     }
   }, [quizState])
 
   const isComplete = useMemo(() => {
     if (!quizState) return false
-    return Object.keys(quizState.answers).length === questions.length
-  }, [quizState, questions.length])
+    return Object.keys(quizState.answers).length === quizState.questions.length
+  }, [quizState])
 
   const progress = useMemo(() => {
-    if (!quizState) return 0
-    return Math.round(((quizState.currentQuestionIndex + 1) / questions.length) * 100)
-  }, [quizState, questions.length])
+    if (!quizState || quizState.questions.length === 0) return 0
+    return Math.round(((quizState.currentQuestionIndex + 1) / quizState.questions.length) * 100)
+  }, [quizState])
 
   return {
-    quizState: quizState ?? initialQuizState,
-    hasStarted: quizState !== null,
+    quizState,
+    questions,
     currentQuestion,
     currentAnswer,
     currentIndex: quizState?.currentQuestionIndex ?? 0,
-    isQuestionAnswered,
     submitAnswer,
     goToQuestion,
     goToNextQuestion,
-    startQuiz,
+    initQuiz,
     resetQuiz,
     stats,
     isComplete,

@@ -13,10 +13,10 @@ interface OptionButtonProps {
 
 const stateStyles: Record<OptionState, string> = {
   default:
-    'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50 text-gray-900',
-  'selected-correct': 'border-green-500 bg-green-50 text-green-900',
-  'selected-wrong': 'border-red-500 bg-red-50 text-red-900',
-  'revealed-correct': 'border-green-500 bg-green-50 text-green-900',
+    'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50 text-gray-900 dark:border-gray-700 dark:bg-gray-900 dark:hover:border-blue-600 dark:hover:bg-blue-950 dark:text-gray-100',
+  'selected-correct': 'border-green-500 bg-green-50 text-green-900 dark:bg-green-950/50 dark:text-green-300',
+  'selected-wrong': 'border-red-500 bg-red-50 text-red-900 dark:bg-red-950/50 dark:text-red-300',
+  'revealed-correct': 'border-green-500 bg-green-50 text-green-900 dark:bg-green-950/50 dark:text-green-300',
 }
 
 export function OptionButton({ label, index, state, disabled, onSelect }: OptionButtonProps) {
