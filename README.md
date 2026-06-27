@@ -1,32 +1,46 @@
-# React + TypeScript + Vite
+# Power BI Interview Quiz
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Practice 100 real Power BI interview questions with instant feedback and explanations.
 
-Currently, two official plugins are available:
+## Live site
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+https://aadhavan-sf.github.io/quiz-web-app/
 
-## React Compiler
+## Local development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+Open http://localhost:5173/
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+## GitHub Pages setup (one-time)
+
+If the live site shows a 404, enable Pages in the repo:
+
+1. Go to **Settings → Pages**
+2. Under **Build and deployment**, set **Source** to **GitHub Actions**
+3. Re-run the latest workflow under **Actions**, or push a new commit
+
+The site will be available at https://aadhavan-sf.github.io/quiz-web-app/
+
+## Swap question banks
+
+Replace `src/data/questions.json` with any JSON array using this schema:
 
 ```json
 {
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
+  "id": 1,
+  "question": "...",
+  "options": ["...", "...", "...", "..."],
+  "correctAnswer": 0,
+  "explanation": "..."
 }
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Regenerate Power BI questions:
+
+```bash
+npm run generate-questions
+```
