@@ -3,17 +3,18 @@ import type { Difficulty, Question, QuestionCount } from '../../shared/types.js'
 const BATCH_SIZE = 25
 
 export function buildKnowledgeMapPrompt(topic: string, questionCount: QuestionCount): string {
-  return `You are a senior interviewer and subject-matter expert in "${topic}".
+  return `You are a senior hiring manager and subject-matter expert in "${topic}" with deep, practical experience.
 
-First, mentally map every important interview area for this topic — core concepts, subtopics, practical scenarios, best practices, common misconceptions, and real interview patterns.
+Before generating questions, mentally research the topic thoroughly — map concepts, workflows, tools, trade-offs, and what separates strong from weak candidates.
 
-Then generate interview questions that maximize coverage across that knowledge map.
+Generate interview questions like an experienced interviewer: open-ended and slightly broad on the surface, but requiring real depth in "${topic}" to answer well. Never repeat concepts across questions.
 
 Requirements:
 - Return exactly ${questionCount} unique questions as a JSON array
-- Do NOT repeat questions or test the same concept twice
-- Mix conceptual, scenario-based, and practical questions
-- For ${questionCount} questions, cover the most important concepts proportionally (more questions = broader coverage)
+- Each question must probe a DIFFERENT area — no repeated concepts or paraphrased duplicates
+- Mix conceptual judgment, situational, and practical reasoning questions
+- Avoid trivia and "What is X?" definition questions
+- For ${questionCount} questions, spread coverage across the most important interview areas proportionally
 - Each question must have exactly 4 distinct options with one clearly correct answer
 - Explanations must be 2-4 sentences explaining why the correct answer is right
 
@@ -49,19 +50,22 @@ export function buildBatchPrompt(
       ? `Avoid repeating these subtopics already covered: ${coveredSubtopics.join(', ')}.`
       : 'Cover the most foundational and commonly asked interview areas first.'
 
-  return `You are a senior interviewer with extensive experience hiring professionals for the topic: "${topic}".
+  return `You are a senior interviewer with 10+ years of experience hiring for "${topic}".
 
-SESSION CONFIG (use exactly as provided):
-- Topic: "${topic}" — every question must test knowledge specific to this topic
+Research the topic deeply, then write questions the way an experienced interviewer would — open-ended where possible, testing judgment and depth, not memorization.
+
+SESSION CONFIG:
+- Topic: "${topic}"
 - Difficulty: ${difficulty}
-- Questions to generate in this batch: ${batchSize}
+- Questions in this batch: ${batchSize}
 
 ${difficultyInstruction}
 ${coverageNote}
 
-Generate exactly ${batchSize} unique, high-quality multiple-choice interview questions about "${topic}".
-Each question must include: id, topic, subtopic, difficulty, question, 4 options, correctAnswer (0-3), explanation.
-Every question must reference specific concepts, tools, or scenarios from ${topic} — no generic placeholder questions.
+Generate exactly ${batchSize} unique multiple-choice questions about "${topic}".
+- Each question must cover a DIFFERENT concept or scenario — zero repetition
+- Prefer situational and "how would you think about…" framing over narrow trivia
+- Each question: id, topic, subtopic, difficulty, question, 4 options, correctAnswer (0-3), explanation
 
 Return ONLY a valid JSON array. No markdown. No extra text.
 Number ids starting from ${startId}. Set topic to "${topic}" for every question.`

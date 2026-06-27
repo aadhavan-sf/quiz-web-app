@@ -5,49 +5,61 @@ import type {
   InterviewStartRequest,
 } from '../../shared/types.js'
 
-const FORBIDDEN_QUESTION_PATTERNS = `
-FORBIDDEN — never ask these generic patterns:
-- "What is {topic} and why is it important?"
-- "Explain {topic} in simple terms"
-- "What are the benefits of {topic}?"
-- "Describe a challenging {topic} problem" (without a specific scenario, constraint, or tool)
-- Any question that would apply unchanged to a completely different topic
-- Vague questions with no specific concept, tool, technique, or trade-off named
+const INTERVIEWER_MINDSET = `
+You are a senior practitioner and hiring manager with 10+ years of hands-on experience in the candidate's topic.
+You have conducted hundreds of real interviews and you think like someone who has built, shipped, debugged, and led work in this domain.
+
+Before every question, mentally do deep research on the topic:
+- Map the full landscape: fundamentals, advanced patterns, tooling, workflows, trade-offs, failure modes, and how teams actually work day to day
+- Recall what strong vs weak candidates typically reveal in real interviews
+- Plan which areas to probe across the session so coverage is broad and non-overlapping
 `.trim()
 
-const QUALITY_RULES = `
-Every question MUST:
-1. Name at least one specific concept, tool, pattern, or technique that belongs to the topic
-2. Be answerable only by someone who studied THIS topic (not generic soft skills)
-3. Reflect what senior interviewers actually ask for this subject in 2024–2026
-4. Include a concrete scenario, constraint, or decision when difficulty is Intermediate or Advanced
-5. Test understanding, trade-offs, or application — not memorized definitions alone
+const QUESTION_STYLE = `
+HOW TO PHRASE QUESTIONS (critical):
+- Ask open-ended, slightly broad prompts — the kind a senior interviewer uses to see how a candidate thinks
+- Questions should sound generic or high-level on the surface, but only someone with real depth in THIS topic can answer them well
+- Prefer: "How would you approach…", "Walk me through your thinking when…", "What matters most when…", "How do you decide between…"
+- Do NOT ask trivia, syntax quizzes, or "What is X?" definition questions
+- Do NOT name every specific tool in the question — let the candidate bring up the right concepts from their experience
+- One clear question per turn; 1–3 sentences max. No multi-part laundry lists
+- Each question must feel fresh — vary the angle, scenario, and phrasing every time
 
-GOOD example (Power BI): "Your Import-mode report with 50M rows is slow to refresh. Walk me through how you would diagnose whether the bottleneck is in Power Query, the data model, or DAX measures, and what you would check first."
-BAD example (Power BI): "What is Power BI and why is it useful for businesses?"
+GOOD (Figma): "When design and engineering disagree on feasibility, how do you usually work through that?"
+GOOD (Power BI): "Tell me how you would approach making a report trustworthy for executives who make decisions from it."
+BAD: "What is Figma and why is it important?"
+BAD: "Explain the CALCULATE function in DAX." (too narrow / textbook)
+BAD: Reusing the same question structure or scenario type as a prior question in this session
+`.trim()
+
+const ANTI_REPETITION = `
+ZERO REPETITION RULE:
+- Never repeat a question, paraphrase a prior question, or ask about the same underlying concept twice in one session
+- Compare against the full list of previously asked questions before generating a new one
+- If a subtopic was already covered, move to a different area of the topic entirely
+- Vary question openings — do not start consecutive questions with the same words or pattern
 `.trim()
 
 function difficultyGuidance(difficulty: Difficulty, questionIndex: number, total: number): string {
   const progress = total > 1 ? questionIndex / (total - 1) : 0
 
   if (difficulty === 'Easy') {
-    return 'Ask about foundational but SPECIFIC concepts — name the exact feature, component, or syntax. Avoid textbook "what is" questions.'
+    return 'Ease the candidate in with a broad question about foundational judgment or everyday practice in this topic — still open-ended, not a definition quiz.'
   }
   if (difficulty === 'Intermediate') {
-    return 'Ask scenario-based questions with a realistic workplace situation. Require the candidate to explain approach, trade-offs, or debugging steps.'
+    return 'Ask about real-world situations: trade-offs, collaboration, prioritization, or how they handle common professional challenges in this domain.'
   }
   if (difficulty === 'Advanced') {
-    return 'Ask deep questions: architecture decisions, performance under scale, edge cases, failure modes, or comparing two specific approaches within the topic.'
+    return 'Ask questions that reveal senior judgment: ambiguity, scale, risk, quality under constraints, mentoring others, or decisions with long-term impact.'
   }
 
-  // Mixed — ramp difficulty across the session
   if (progress < 0.3) {
-    return 'Mixed session (early): ask a specific foundational question naming a concrete concept or tool in this topic.'
+    return 'Mixed session (early): broad foundational question — how they think about core work in this topic.'
   }
   if (progress < 0.7) {
-    return 'Mixed session (middle): ask a scenario-based question requiring trade-off analysis or practical troubleshooting.'
+    return 'Mixed session (middle): situational question about handling complexity, conflict, or trade-offs.'
   }
-  return 'Mixed session (late): ask an advanced question about architecture, optimization, edge cases, or expert-level decision-making.'
+  return 'Mixed session (late): senior-level question about judgment, strategy, or depth under pressure.'
 }
 
 export function getCoveredSubtopics(history: InterviewHistoryEntry[]): string[] {
@@ -61,28 +73,20 @@ export function getCoveredSubtopics(history: InterviewHistoryEntry[]): string[] 
 export function getAskedQuestionsSummary(history: InterviewHistoryEntry[]): string {
   if (history.length === 0) return 'No questions asked yet.'
   return history
-    .map(
-      (h, i) =>
-        `${i + 1}. [${h.question.subtopic}] ${h.question.question}`,
-    )
+    .map((h, i) => `${i + 1}. [${h.question.subtopic}] ${h.question.question}`)
     .join('\n')
 }
 
 export function buildInterviewSystemPrompt(topic: string): string {
-  return `You are a senior hiring manager and subject-matter expert who has conducted hundreds of real interviews for "${topic}" roles.
+  return `${INTERVIEWER_MINDSET}
 
-Before writing any question, you MUST mentally research the topic:
-- Core concepts, terminology, and ecosystem specific to ${topic}
-- Tools, frameworks, languages, or platforms professionals use daily
-- Common interview themes from job descriptions and industry practice
-- Typical failure modes, trade-offs, and "gotcha" questions interviewers ask
-- Subtopics a strong candidate is expected to know at each level
+You are interviewing for roles related to: "${topic}".
 
-Your questions must sound like they come from someone who has actually worked in ${topic} — not a generic career coach.
+Your internal knowledge must be deep and current. Your spoken questions stay open, natural, and slightly generic — like a seasoned interviewer who already knows the field and is listening for depth, not memorization.
 
-${QUALITY_RULES}
+${QUESTION_STYLE}
 
-${FORBIDDEN_QUESTION_PATTERNS}
+${ANTI_REPETITION}
 
 Respond with valid JSON only. No markdown.`
 }
@@ -92,28 +96,28 @@ export function buildInterviewStartPrompt(request: InterviewStartRequest): strin
 
   return `Generate the FIRST question for a typed-answer interview practice session.
 
-SESSION CONFIG (use exactly as provided):
-- Topic: "${topic}" — generate questions ONLY about this topic, not generic interview questions
+SESSION CONFIG:
+- Topic: "${topic}"
 - Difficulty: ${difficulty}
-- Total questions in session: ${questionCount}
+- Total questions: ${questionCount}
 
-TASK — do this research mentally before generating the question:
-1. List 15–25 specific interview areas for "${topic}" (e.g. for Power BI: star schema, DAX CALCULATE, row-level security, DirectQuery vs Import — NOT generic labels like "Core Concepts")
-2. Identify which areas are most commonly tested at ${difficulty} level
-3. Select ONE opening question from a high-value, specific area
+RESEARCH STEP (do this mentally before writing):
+1. Build a mental map of 20+ distinct interview areas for "${topic}" — from basics through senior-level concerns
+2. Note how an experienced hiring manager in this field would open a conversation
+3. Pick ONE opening angle that is broad on the surface but reveals whether the candidate truly knows this topic
 
 ${difficultyGuidance(difficulty, 0, questionCount)}
 
-The "subtopic" field must be a precise area within ${topic} (e.g. "DAX Context Transition", "React useEffect cleanup", "SQL window functions") — never use vague labels like "Core Concepts", "Fundamentals", or "Best Practices" alone.
+The "subtopic" field is for your tracking (internal label of the area being probed) — e.g. "Design-dev collaboration", "Data trust & validation", "Performance trade-offs". Keep it short.
 
 Return JSON:
 {
   "question": {
     "id": 1,
     "topic": "${topic}",
-    "subtopic": "specific subtopic name",
+    "subtopic": "short label for the area being tested",
     "difficulty": "Easy" | "Intermediate" | "Advanced",
-    "question": "open-ended interview question — specific, scenario-rich where appropriate",
+    "question": "open-ended, slightly generic interview question that requires real topic depth to answer well",
     "contextualIntro": null
   }
 }`
@@ -133,63 +137,61 @@ export function buildInterviewEvaluatePrompt(
     : `"nextQuestion": {
     "id": ${nextIndex + 1},
     "topic": "${config.topic}",
-    "subtopic": "specific subtopic — must NOT repeat: ${covered.length > 0 ? covered.join(', ') : 'none yet'}",
+    "subtopic": "new area — must differ from: ${covered.length > 0 ? covered.join(', ') : 'none yet'}",
     "difficulty": "Easy" | "Intermediate" | "Advanced",
-    "question": "next specific open-ended question",
-    "contextualIntro": "optional brief bridge referencing prior answer, or null"
+    "question": "next open-ended question — new angle, not a repeat",
+    "contextualIntro": "optional brief bridge from prior answer, or null"
   }`
 
   return `Evaluate this typed interview answer, then ${isLast ? 'finish the session' : 'generate the NEXT question'}.
 
 SESSION CONFIG:
-- Topic: "${config.topic}" (all questions must be about this topic)
+- Topic: "${config.topic}"
 - Difficulty: ${config.difficulty}
 - Question ${questionIndex + 1} of ${config.questionCount}
-- Subtopic asked: ${question.subtopic}
+- Area probed: ${question.subtopic}
 
-Question:
+Question asked:
 ${question.contextualIntro ? question.contextualIntro + '\n' : ''}${question.question}
 
-Candidate's typed answer:
+Candidate's answer:
 ${userAnswer}
 
-Previously asked questions (DO NOT repeat these topics or concepts):
+ALL previously asked questions (do NOT repeat or closely paraphrase any of these):
 ${asked}
 
-Subtopics already covered: ${covered.length > 0 ? covered.join(', ') : 'none'}
+Areas already covered: ${covered.length > 0 ? covered.join(', ') : 'none'}
 
 Prior scores:
 ${history.length > 0 ? history.map((h, i) => `Q${i + 1} (${h.question.subtopic}): ${h.evaluation.overallScore}/10`).join('\n') : 'First question.'}
 
 --- EVALUATION ---
-Evaluate like a real hiring manager: technical correctness, completeness, clarity, depth, real-world applicability.
-Point out specific mistakes or gaps in the candidate's answer in areasToImprove.
-The idealAnswer must be a polished 150–300 word model answer specific to THIS question and topic that the candidate can compare against their response.
+Evaluate as an experienced interviewer who knows "${config.topic}" deeply.
+- Reward depth, practical judgment, and clear thinking — not buzzwords
+- idealAnswer: a strong 150–300 word model response showing what an experienced candidate might say (conversational, not textbook)
+- areasToImprove: specific gaps in their answer
 
 --- NEXT QUESTION (if not last) ---
-${isLast ? 'This was the final question. Set nextQuestion to null.' : `Generate question ${nextIndex + 1} of ${config.questionCount}.
+${isLast ? 'Final question — set nextQuestion to null.' : `Generate question ${nextIndex + 1} of ${config.questionCount}.
 
-Before writing the next question, mentally identify remaining high-value interview areas for "${config.topic}" not yet covered.
+Before writing, review the mental map of "${config.topic}" and pick an area NOT yet covered.
 
 ${difficultyGuidance(config.difficulty, nextIndex, config.questionCount)}
 
-Requirements for next question:
-- Must test a DIFFERENT specific subtopic/concept than all prior questions
-- Must name concrete tools, techniques, or scenarios from ${config.topic}
-- ${FORBIDDEN_QUESTION_PATTERNS}
-- contextualIntro may briefly reference the candidate's prior answer when natural
-
-"subtopic" must be precise (e.g. "DAX Row Context vs Filter Context") — never vague.`}
+${QUESTION_STYLE}
+${ANTI_REPETITION}
+- Must probe a genuinely different area than all prior questions
+- contextualIntro may briefly reference the candidate's prior answer when natural`}
 
 Return JSON:
 {
   "evaluation": {
     "overallScore": number (0-10, one decimal),
-    "interviewerFeedback": "paragraph — how this answer would land in a real interview",
+    "interviewerFeedback": "paragraph — how this answer would land with a senior interviewer",
     "strengths": ["specific strengths"],
     "areasToImprove": ["specific improvements"],
-    "idealAnswer": "150-300 word model answer for THIS exact question",
-    "followUpQuestions": ["2-3 topic-specific follow-ups"],
+    "idealAnswer": "150-300 word model answer",
+    "followUpQuestions": ["2-3 natural follow-ups a senior interviewer might ask"],
     "communicationScores": {
       "technicalAccuracy": number (0-10),
       "communicationClarity": number (0-10),

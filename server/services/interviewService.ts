@@ -15,8 +15,8 @@ import {
 } from './interviewPrompts.js'
 import { getOpenAIModel, formatOpenAIError, requireOpenAIClient } from './aiClient.js'
 
-const QUESTION_TEMPERATURE = 0.55
-const EVAL_TEMPERATURE = 0.65
+const QUESTION_TEMPERATURE = 0.72
+const EVAL_TEMPERATURE = 0.68
 
 function parseJson<T>(raw: string): T {
   const cleaned = raw
