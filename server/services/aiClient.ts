@@ -28,7 +28,7 @@ function getApiKeyForProvider(provider: AiProvider): string | null {
 }
 
 export function getAiSetupMessage(): string {
-  if (provider === 'openai') {
+  if (getAiProvider() === 'openai') {
     return 'AI is not configured. Add OPENAI_API_KEY to .env locally, or in Vercel Project Settings → Environment Variables.'
   }
   return 'AI is not configured. Add GROQ_API_KEY in Vercel Project Settings → Environment Variables (or in .env for local dev).'
