@@ -71,7 +71,7 @@ export function QuizReviewPage({ quizState, onViewResults }: QuizReviewPageProps
       exit={{ opacity: 0 }}
       className="min-h-screen px-4 py-8 sm:px-6 sm:py-12"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl lg:max-w-6xl">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold text-gray-900">Review your test</h1>
           <p className="mt-2 text-gray-600">
@@ -79,7 +79,7 @@ export function QuizReviewPage({ quizState, onViewResults }: QuizReviewPageProps
           </p>
         </div>
 
-        <div className="space-y-5">
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
           {quizState.questions.map((question, index) => (
             <ReviewItem
               key={question.id}

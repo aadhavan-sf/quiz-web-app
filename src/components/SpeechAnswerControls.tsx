@@ -8,6 +8,7 @@ interface SpeechAnswerControlsProps {
   onChange: (value: string) => void
   disabled?: boolean
   showDebug?: boolean
+  showTranscriptionTips?: boolean
   topic?: string
   onRecordingChange?: (isRecording: boolean) => void
   onBusyChange?: (isBusy: boolean) => void
@@ -18,6 +19,7 @@ export function SpeechAnswerControls({
   onChange,
   disabled = false,
   showDebug = false,
+  showTranscriptionTips = false,
   topic,
   onRecordingChange,
   onBusyChange,
@@ -64,7 +66,9 @@ export function SpeechAnswerControls({
 
   return (
     <div className="space-y-3">
-      {!speech.isRecording && !speech.isTranscribing && <SpeechTipsBanner />}
+      {showTranscriptionTips && !speech.isRecording && !speech.isTranscribing && (
+        <SpeechTipsBanner />
+      )}
       {speech.isRecording && <SpeechTipsBanner variant="recording" />}
 
       <div className="flex flex-wrap items-center gap-3">

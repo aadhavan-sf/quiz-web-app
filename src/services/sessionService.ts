@@ -21,6 +21,14 @@ export async function createPracticeSession(
   state: QuizState | InterviewSessionState,
 ): Promise<string> {
   const client = requireClient()
+
+  const existing = await fetchInProgressSessionForMode(userId, mode)
+  if (existing) {
+    throw new Error(
+      `You already have an unfinished ${mode === 'mcq' ? 'MCQ' : 'interview'} session. Complete it before starting a new one.`,
+    )
+  }
+
   const startedAt = new Date(
     'startedAt' in state ? state.startedAt : Date.now(),
   ).toISOString()
@@ -86,6 +94,47 @@ export async function fetchInProgressSessions(userId: string): Promise<StoredPra
 
   if (error) throw new Error(error.message)
   return (data ?? []) as StoredPracticeSession[]
+}
+
+/** Most recent in-progress session for a mode, if any. */
+export async function fetchInProgressSessionForMode(
+  userId: string,
+  mode: PracticeMode,
+): Promise<StoredPracticeSession | null> {
+  const client = requireClient()
+  const { data, error } = await client
+    .from('practice_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+    .eq('status', 'in_progress')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) throw new Error(error.message)
+  return (data as StoredPracticeSession | null) ?? null
+}
+
+/** One session per mode — keeps the most recently updated. */
+export function latestSessionPerMode(
+  sessions: StoredPracticeSession[],
+): StoredPracticeSession[] {
+  const byMode = new Map<PracticeMode, StoredPracticeSession>()
+
+  for (const session of sessions) {
+    const existing = byMode.get(session.mode)
+    if (
+      !existing ||
+      new Date(session.updated_at).getTime() > new Date(existing.updated_at).getTime()
+    ) {
+      byMode.set(session.mode, session)
+    }
+  }
+
+  return [...byMode.values()].sort(
+    (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+  )
 }
 
 export async function fetchCompletedSessions(userId: string): Promise<StoredPracticeSession[]> {

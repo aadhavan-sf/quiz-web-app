@@ -1,11 +1,15 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { PracticeMode } from '../types/question'
 import { BrandLogo } from '../components/BrandLogo'
 import { AppUserHeader } from '../components/AppUserHeader'
 import { useAuth } from '../context/AuthContext'
-import { fetchInProgressSessions } from '../services/sessionService'
+import {
+  fetchInProgressSessions,
+  latestSessionPerMode,
+} from '../services/sessionService'
 import type { StoredPracticeSession } from '../types/question'
+import { getSessionProgress, sessionTopic } from '../utils/sessionProgress'
 
 interface ModeSelectionPageProps {
   onSelect: (mode: PracticeMode) => void
@@ -32,7 +36,7 @@ const MODES = [
       'AI acts as a senior interviewer with open-ended questions. Record or type your answer and receive detailed evaluation with an ideal model answer.',
     features: ['Topic-specific open-ended questions', 'Voice or typed answers', 'AI evaluation, corrections & ideal answer'],
   },
-]
+] as const
 
 export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelectionPageProps) {
   const { user } = useAuth()
@@ -46,10 +50,18 @@ export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelecti
     }
     setLoadingSessions(true)
     fetchInProgressSessions(user.id)
-      .then(setInProgress)
+      .then((sessions) => setInProgress(latestSessionPerMode(sessions)))
       .catch(() => setInProgress([]))
       .finally(() => setLoadingSessions(false))
   }, [user])
+
+  const pendingByMode = useMemo(() => {
+    const map: Partial<Record<PracticeMode, StoredPracticeSession>> = {}
+    for (const session of inProgress) {
+      map[session.mode] = session
+    }
+    return map
+  }, [inProgress])
 
   return (
     <motion.div
@@ -93,13 +105,12 @@ export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelecti
         {inProgress.length > 0 && (
           <div className="mb-8 space-y-3">
             <h2 className="text-sm font-semibold text-gray-900">Resume a session</h2>
+            <p className="text-xs text-gray-600">
+              One in-progress session per assessment type. Starting the same topic again will ask
+              whether to continue or start fresh.
+            </p>
             {inProgress.map((session) => {
-              const config = session.config as { topic?: string; questionCount?: number }
-              const state = session.state as { answers?: Record<string, unknown>; history?: unknown[] }
-              const progress =
-                session.mode === 'mcq'
-                  ? Object.keys(state.answers ?? {}).length
-                  : (state.history?.length ?? 0)
+              const { completed, total } = getSessionProgress(session)
 
               return (
                 <button
@@ -110,10 +121,10 @@ export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelecti
                 >
                   <div>
                     <p className="font-semibold text-gray-900">
-                      {session.mode === 'mcq' ? 'MCQ' : 'Interview'} · {config.topic}
+                      {session.mode === 'mcq' ? 'MCQ' : 'Interview'} · {sessionTopic(session)}
                     </p>
                     <p className="text-xs text-gray-600">
-                      {progress} of {config.questionCount} completed
+                      {completed} of {total} completed
                     </p>
                   </div>
                   <span className="text-sm font-semibold text-primary-600">Resume →</span>
@@ -124,35 +135,45 @@ export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelecti
         )}
 
         <div className="grid gap-5 sm:grid-cols-2">
-          {MODES.map((mode, index) => (
-            <motion.button
-              key={mode.id}
-              type="button"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + index * 0.08 }}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onSelect(mode.id)}
-              className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 text-left shadow-sm transition-shadow hover:border-primary-300 hover:shadow-md"
-            >
-              <span className="mb-4 text-3xl">{mode.icon}</span>
-              <h2 className="text-xl font-bold text-gray-900">{mode.title}</h2>
-              <p className="mt-1 text-sm font-medium text-primary-600">{mode.subtitle}</p>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">{mode.description}</p>
-              <ul className="mt-5 space-y-2">
-                {mode.features.map((feature) => (
-                  <li key={feature} className="flex items-center gap-2 text-sm text-gray-700">
-                    <span className="text-green-500">✓</span>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-              <span className="mt-6 text-sm font-semibold text-primary-600 group-hover:underline">
-                Select {mode.title} →
-              </span>
-            </motion.button>
-          ))}
+          {MODES.map((mode, index) => {
+            const pending = pendingByMode[mode.id]
+
+            return (
+              <motion.button
+                key={mode.id}
+                type="button"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + index * 0.08 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => onSelect(mode.id)}
+                className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 text-left shadow-sm transition-shadow hover:border-primary-300 hover:shadow-md"
+              >
+                <span className="mb-4 text-3xl">{mode.icon}</span>
+                <h2 className="text-xl font-bold text-gray-900">{mode.title}</h2>
+                {pending ? (
+                  <p className="mt-1 text-sm font-medium text-primary-700">
+                    In progress · {sessionTopic(pending)}
+                  </p>
+                ) : (
+                  <p className="mt-1 text-sm font-medium text-primary-600">{mode.subtitle}</p>
+                )}
+                <p className="mt-3 text-sm leading-relaxed text-gray-600">{mode.description}</p>
+                <ul className="mt-5 space-y-2">
+                  {mode.features.map((feature) => (
+                    <li key={feature} className="flex items-center gap-2 text-sm text-gray-700">
+                      <span className="text-green-500">✓</span>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <span className="mt-6 text-sm font-semibold text-primary-600 group-hover:underline">
+                  Select {mode.title} →
+                </span>
+              </motion.button>
+            )
+          })}
         </div>
       </div>
     </motion.div>

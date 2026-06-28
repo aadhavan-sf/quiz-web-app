@@ -1,6 +1,7 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AuthLoadingScreen } from './components/AuthLoadingScreen'
+import { ExistingSessionDialog } from './components/ExistingSessionDialog'
 import { GeneratingSkeleton } from './components/GeneratingSkeleton'
 import { useAuth } from './context/AuthContext'
 import { useInterviewSession } from './hooks/useInterviewSession'
@@ -30,6 +31,12 @@ import { clearInterviewData } from './utils/interviewStorage'
 import { calculateResults } from './utils/quizUtils'
 import { clearQuizData, getUserName, setUserName } from './utils/storage'
 import { isSupabaseConfigured } from './lib/supabase'
+import {
+  deletePracticeSession,
+  fetchInProgressSessionForMode,
+} from './services/sessionService'
+import { scrollToTop } from './utils/scrollToTop'
+import { getSessionProgress, isSameTopic, sessionTopic } from './utils/sessionProgress'
 
 const PROTECTED_SCREENS: AppScreen[] = [
   'mode-select',
@@ -59,9 +66,19 @@ function AppContent() {
   const [savedResults, setSavedResults] = useState<ReturnType<typeof calculateResults> | null>(
     null,
   )
+  const [pendingGenerate, setPendingGenerate] = useState<{
+    session: StoredPracticeSession
+    request: ConfigureSessionRequest
+  } | null>(null)
+  const [isReplacingSession, setIsReplacingSession] = useState(false)
 
   const quiz = useQuiz()
   const interview = useInterviewSession()
+
+  useEffect(() => {
+    if (authLoading) return
+    requestAnimationFrame(() => scrollToTop())
+  }, [screen, profileReviewSession, authLoading])
 
   useEffect(() => {
     if (authLoading) return
@@ -102,14 +119,12 @@ function AppContent() {
     setPracticeMode(null)
     setError(null)
     setProfileReviewSession(null)
+    setPendingGenerate(null)
     setScreen('mode-select')
   }, [])
 
-  const handleGenerate = useCallback(
+  const runGenerate = useCallback(
     async (request: ConfigureSessionRequest) => {
-      if (isConfigured && (!user || !displayName)) return
-
-      setError(null)
       setGeneratingCount(request.questionCount)
       const name = sessionUserName
       setUserName(name)
@@ -162,17 +177,84 @@ function AppContent() {
         setScreen('config')
       }
     },
-    [quiz, interview, user, displayName, isConfigured, sessionUserName],
+    [quiz, interview, sessionUserName],
   )
+
+  const handleGenerate = useCallback(
+    async (request: ConfigureSessionRequest) => {
+      if (isConfigured && (!user || !displayName)) return
+
+      setError(null)
+
+      if (user && isConfigured) {
+        const mode = request.mode ?? practiceMode
+        if (mode) {
+          const existing = await fetchInProgressSessionForMode(user.id, mode).catch(() => null)
+          if (existing) {
+            const existingTopic = sessionTopic(existing)
+            if (isSameTopic(existingTopic, request.topic)) {
+              setPendingGenerate({ session: existing, request })
+              return
+            }
+            setError(
+              `You already have an unfinished ${mode === 'mcq' ? 'MCQ' : 'interview'} session on ${existingTopic}. Complete it or choose a different topic before starting a new one.`,
+            )
+            return
+          }
+        }
+      }
+
+      await runGenerate(request)
+    },
+    [user, displayName, isConfigured, practiceMode, runGenerate],
+  )
+
+  const handleContinueExistingSession = useCallback(() => {
+    if (!pendingGenerate) return
+    const { session } = pendingGenerate
+    setPendingGenerate(null)
+    if (session.mode === 'mcq') {
+      quiz.initQuiz({ ...(session.state as QuizState), sessionId: session.id })
+      setPracticeMode('mcq')
+      setScreen('quiz')
+    } else {
+      interview.initSession({
+        ...(session.state as InterviewSessionState),
+        sessionId: session.id,
+      })
+      setPracticeMode('interview')
+      setScreen('interview')
+    }
+  }, [pendingGenerate, quiz, interview])
+
+  const handleStartNewSession = useCallback(async () => {
+    if (!pendingGenerate) return
+    const { session, request } = pendingGenerate
+    setIsReplacingSession(true)
+    try {
+      await deletePracticeSession(session.id)
+      setPendingGenerate(null)
+      await runGenerate(request)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to replace session')
+      setScreen('config')
+    } finally {
+      setIsReplacingSession(false)
+    }
+  }, [pendingGenerate, runGenerate])
 
   const handleResumeSession = useCallback(
     (stored: StoredPracticeSession) => {
+      setPendingGenerate(null)
       if (stored.mode === 'mcq') {
-        quiz.initQuiz(stored.state as QuizState)
+        quiz.initQuiz({ ...(stored.state as QuizState), sessionId: stored.id })
         setPracticeMode('mcq')
         setScreen('quiz')
       } else {
-        interview.initSession(stored.state as InterviewSessionState)
+        interview.initSession({
+          ...(stored.state as InterviewSessionState),
+          sessionId: stored.id,
+        })
         setPracticeMode('interview')
         setScreen('interview')
       }
@@ -265,6 +347,11 @@ function AppContent() {
     return calculateResults(quiz.quizState.questions, quiz.quizState.answers, elapsed)
   }, [quiz.quizState, savedResults])
 
+  const pendingProgress = useMemo(() => {
+    if (!pendingGenerate) return null
+    return getSessionProgress(pendingGenerate.session)
+  }, [pendingGenerate])
+
   const showError = error && (screen === 'config' || screen === 'interview')
 
   if (authLoading) {
@@ -279,6 +366,20 @@ function AppContent() {
             {error}
           </div>
         </div>
+      )}
+
+      {pendingGenerate && pendingProgress && (
+        <ExistingSessionDialog
+          mode={pendingGenerate.session.mode}
+          topic={sessionTopic(pendingGenerate.session)}
+          completed={pendingProgress.completed}
+          total={pendingProgress.total}
+          remaining={pendingProgress.remaining}
+          onContinue={handleContinueExistingSession}
+          onStartNew={handleStartNewSession}
+          onCancel={() => setPendingGenerate(null)}
+          isReplacing={isReplacingSession}
+        />
       )}
 
       <AnimatePresence mode="wait">

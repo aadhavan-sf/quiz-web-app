@@ -60,9 +60,9 @@ export function ProfilePage({ onBack, onViewCompletedTest }: ProfilePageProps) {
         </button>
 
         <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <UserAvatar name={displayName} avatarUrl={avatarUrl} size="lg" />
-            <div>
+          <div className="flex items-stretch gap-4">
+            <UserAvatar name={displayName} avatarUrl={avatarUrl} size="stretch" />
+            <div className="flex flex-col justify-center">
               <p className="text-sm text-gray-500">Profile</p>
               <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">{displayName}</h1>
               <p className="mt-1 text-sm text-gray-600">{user.email}</p>
@@ -157,7 +157,7 @@ export function CompletedTestReview({ session, onBack }: CompletedTestReviewProp
       animate={{ opacity: 1 }}
       className="min-h-screen px-4 py-8 sm:px-6 sm:py-12"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl lg:max-w-6xl">
         <button
           type="button"
           onClick={onBack}
@@ -171,7 +171,7 @@ export function CompletedTestReview({ session, onBack }: CompletedTestReviewProp
           {(session.config as { topic?: string }).topic} · Score: {results?.percentage ?? '—'}%
         </p>
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-8 grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
           {state.questions.map((question, index) => {
             const answer = state.answers[question.id]
             return (

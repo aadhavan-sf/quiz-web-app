@@ -5,6 +5,7 @@ import {
   getBatchSizes,
   parseQuestionsFromResponse,
   reindexQuestions,
+  shuffleAllQuestionOptions,
 } from './prompts.js'
 
 async function generateBatch(
@@ -73,7 +74,7 @@ export async function generateQuestions(
     nextId += batch.length
   }
 
-  return reindexQuestions(allQuestions.slice(0, questionCount))
+  return shuffleAllQuestionOptions(reindexQuestions(allQuestions.slice(0, questionCount)))
 }
 
 export function validateGenerateRequest(body: unknown): GenerateQuestionsRequest {

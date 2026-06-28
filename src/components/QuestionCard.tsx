@@ -45,6 +45,15 @@ export function QuestionCard({
     if (isLocked) return
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return
+      const target = e.target
+      if (
+        target instanceof HTMLElement &&
+        target.closest('input, textarea, select, [contenteditable="true"]')
+      ) {
+        return
+      }
+
       const keyMap: Record<string, number> = { a: 0, b: 1, c: 2, d: 3, '1': 0, '2': 1, '3': 2, '4': 3 }
       const index = keyMap[e.key.toLowerCase()]
       if (index !== undefined) {
@@ -66,46 +75,35 @@ export function QuestionCard({
       transition={{ duration: 0.3 }}
       className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
     >
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-            {question.subtopic}
-          </span>
-          <span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700">
-            {question.difficulty}
-          </span>
+      {(canSkip || showNext) && (
+        <div className="mb-4 hidden items-center justify-end gap-2 sm:flex">
+          {canSkip && onSkip && (
+            <motion.button
+              type="button"
+              onClick={onSkip}
+              whileTap={{ scale: 0.98 }}
+              className="min-h-10 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+            >
+              Skip for now
+            </motion.button>
+          )}
+          {showNext && onNext && (
+            <motion.button
+              type="button"
+              onClick={onNext}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className={`min-h-10 rounded-xl px-5 py-2 text-sm font-semibold text-white shadow-sm ${
+                highlightSubmit
+                  ? 'bg-accent-600 hover:bg-accent-600/90 ring-2 ring-accent-500/30'
+                  : 'bg-primary-600 hover:bg-primary-700'
+              }`}
+            >
+              {nextLabel}
+            </motion.button>
+          )}
         </div>
-
-        {(canSkip || showNext) && (
-          <div className="ml-auto hidden items-center gap-2 sm:flex">
-            {canSkip && onSkip && (
-              <motion.button
-                type="button"
-                onClick={onSkip}
-                whileTap={{ scale: 0.98 }}
-                className="min-h-10 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-              >
-                Skip for now
-              </motion.button>
-            )}
-            {showNext && onNext && (
-              <motion.button
-                type="button"
-                onClick={onNext}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`min-h-10 rounded-xl px-5 py-2 text-sm font-semibold text-white shadow-sm ${
-                  highlightSubmit
-                    ? 'bg-accent-600 hover:bg-accent-600/90 ring-2 ring-accent-500/30'
-                    : 'bg-primary-600 hover:bg-primary-700'
-                }`}
-              >
-                {nextLabel}
-              </motion.button>
-            )}
-          </div>
-        )}
-      </div>
+      )}
       <h2 className="mb-6 text-lg font-semibold leading-relaxed text-gray-900 sm:text-xl">
         {question.question}
       </h2>

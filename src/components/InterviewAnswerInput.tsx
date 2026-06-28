@@ -9,6 +9,7 @@ interface InterviewAnswerInputProps {
   value: string
   onChange: (value: string) => void
   disabled?: boolean
+  showTranscriptionTips?: boolean
 }
 
 export function InterviewAnswerInput({
@@ -16,10 +17,13 @@ export function InterviewAnswerInput({
   value,
   onChange,
   disabled = false,
+  showTranscriptionTips = false,
 }: InterviewAnswerInputProps) {
   return (
     <div className="space-y-4">
-      {!speech.isRecording && !speech.isTranscribing && <SpeechTipsBanner />}
+      {showTranscriptionTips && !speech.isRecording && !speech.isTranscribing && (
+        <SpeechTipsBanner />
+      )}
 
       {speech.isRecording && <SpeechTipsBanner variant="recording" />}
 

@@ -16,6 +16,7 @@ Requirements:
 - Avoid trivia and "What is X?" definition questions
 - For ${questionCount} questions, spread coverage across the most important interview areas proportionally
 - Each question must have exactly 4 distinct options with one clearly correct answer
+- Vary correctAnswer evenly across 0, 1, 2, and 3 — do not put most correct answers at index 0
 - Explanations must be 2-4 sentences explaining why the correct answer is right
 
 Return ONLY valid JSON — no markdown, no code fences, no extra text.
@@ -66,6 +67,7 @@ Generate exactly ${batchSize} unique multiple-choice questions about "${topic}".
 - Each question must cover a DIFFERENT concept or scenario — zero repetition
 - Prefer situational and "how would you think about…" framing over narrow trivia
 - Each question: id, topic, subtopic, difficulty, question, 4 options, correctAnswer (0-3), explanation
+- Spread correctAnswer across all four indices (0–3) in each batch — avoid clustering on option A (index 0)
 
 Return ONLY a valid JSON array. No markdown. No extra text.
 Number ids starting from ${startId}. Set topic to "${topic}" for every question.`
@@ -131,4 +133,24 @@ function normalizeQuestion(item: unknown, topic: string, fallbackId: number): Qu
 
 export function reindexQuestions(questions: Question[]): Question[] {
   return questions.map((q, index) => ({ ...q, id: index + 1 }))
+}
+
+/** Randomize option order so the correct answer is not always option A. */
+export function shuffleQuestionOptions(question: Question): Question {
+  const order = [0, 1, 2, 3]
+  for (let i = order.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = order[i]!
+    order[i] = order[j]!
+    order[j] = tmp
+  }
+
+  const options = order.map((i) => question.options[i]!) as Question['options']
+  const correctAnswer = order.indexOf(question.correctAnswer) as Question['correctAnswer']
+
+  return { ...question, options, correctAnswer }
+}
+
+export function shuffleAllQuestionOptions(questions: Question[]): Question[] {
+  return questions.map(shuffleQuestionOptions)
 }

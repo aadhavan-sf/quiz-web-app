@@ -11,6 +11,7 @@ import { SessionPageHeader } from '../components/SessionPageHeader'
 import { useAuth } from '../context/AuthContext'
 import { usePracticeTimer } from '../hooks/useLocalStorage'
 import { useInterviewSessionSync } from '../hooks/useSessionSync'
+import { useTimedSpeechTips } from '../hooks/useTimedSpeechTips'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 import type { InterviewQuestion, InterviewSessionState } from '../types/question'
 import { evaluateInterviewAnswer, skipInterviewQuestion } from '../utils/api'
@@ -35,6 +36,7 @@ interface InterviewPageProps {
 
 export function InterviewPage({ session, onUpdate, onComplete, onLeave }: InterviewPageProps) {
   const { avatarUrl } = useAuth()
+  const showTranscriptionTips = useTimedSpeechTips()
   const [answer, setAnswer] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -333,6 +335,8 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
         }`}
       >
         <SessionPageHeader
+          topic={config.topic}
+          assessmentLabel={`Interview Practice · ${config.difficulty}`}
           userName={config.fullName}
           avatarUrl={avatarUrl}
           elapsedSeconds={elapsedSeconds}
@@ -452,6 +456,7 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
                     value={answer}
                     onChange={setAnswer}
                     disabled={controlsDisabled}
+                    showTranscriptionTips={showTranscriptionTips && activeIndex === 0}
                   />
                   {error && (
                     <p className="mt-3 text-sm text-red-600" role="alert">

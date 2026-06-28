@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { MobileSessionBar, mobileSessionBarPadding } from '../components/MobileSessionBar'
 import { QuestionCard } from '../components/QuestionCard'
 import { QuestionTracker } from '../components/QuestionTracker'
-import { QuizDashboard } from '../components/QuizDashboard'
 import { LeaveSessionButton } from '../components/LeaveSessionButton'
 import { SessionPageHeader } from '../components/SessionPageHeader'
 import { useAuth } from '../context/AuthContext'
@@ -34,7 +33,6 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
     canNavigateToIndex,
     attachSessionId,
     stats,
-    progress,
     isComplete,
   } = quiz
 
@@ -79,6 +77,8 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
     >
       <div className="mx-auto max-w-6xl">
         <SessionPageHeader
+          topic={config.topic}
+          assessmentLabel={`MCQ Practice · ${config.difficulty}`}
           userName={config.fullName}
           avatarUrl={avatarUrl}
           elapsedSeconds={elapsedSeconds}
@@ -118,18 +118,6 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
               skippedIds={skippedQuestionIds}
               onSelect={goToQuestion}
               canNavigateTo={canNavigateToIndex}
-            />
-
-            <QuizDashboard
-              topic={config.topic}
-              difficulty={config.difficulty}
-              currentQuestion={currentIndex + 1}
-              totalQuestions={quizState.questions.length}
-              progress={progress}
-              correctCount={stats.correct}
-              wrongCount={stats.wrong}
-              answeredCount={stats.answered}
-              skippedCount={stats.skipped}
             />
 
             {isComplete && !readyToSubmit && (
