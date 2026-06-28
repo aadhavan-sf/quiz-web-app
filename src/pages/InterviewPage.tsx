@@ -32,9 +32,10 @@ interface InterviewPageProps {
   onUpdate: (session: InterviewSessionState) => void
   onComplete: (elapsedSeconds: number) => void
   onLeave: () => void
+  onProfile: () => void
 }
 
-export function InterviewPage({ session, onUpdate, onComplete, onLeave }: InterviewPageProps) {
+export function InterviewPage({ session, onUpdate, onComplete, onLeave, onProfile }: InterviewPageProps) {
   const { avatarUrl } = useAuth()
   const showTranscriptionTips = useTimedSpeechTips()
   const [answer, setAnswer] = useState('')
@@ -349,6 +350,7 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
           avatarUrl={avatarUrl}
           remainingSeconds={remainingSeconds}
           hasLimit={hasLimit}
+          onProfile={onProfile}
           leaveButton={
             <LeaveSessionButton
               onConfirm={onLeave}

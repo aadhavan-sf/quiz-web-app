@@ -16,9 +16,10 @@ interface QuizPageProps {
   quiz: QuizHookReturn
   onSubmit: () => void
   onLeave: () => void
+  onProfile: () => void
 }
 
-export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
+export function QuizPage({ quiz, onSubmit, onLeave, onProfile }: QuizPageProps) {
   const { avatarUrl } = useAuth()
   const {
     quizState,
@@ -91,6 +92,7 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
           avatarUrl={avatarUrl}
           remainingSeconds={remainingSeconds}
           hasLimit={hasLimit}
+          onProfile={onProfile}
           leaveButton={
             <LeaveSessionButton
               onConfirm={onLeave}

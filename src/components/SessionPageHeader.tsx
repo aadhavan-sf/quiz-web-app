@@ -10,6 +10,7 @@ interface SessionPageHeaderProps {
   leaveButton: ReactNode
   remainingSeconds: number | null
   hasLimit: boolean
+  onProfile?: () => void
 }
 
 export function SessionPageHeader({
@@ -20,6 +21,7 @@ export function SessionPageHeader({
   leaveButton,
   remainingSeconds,
   hasLimit,
+  onProfile,
 }: SessionPageHeaderProps) {
   const timerProps = {
     remainingSeconds,
@@ -37,11 +39,20 @@ export function SessionPageHeader({
 
       <div className="shrink-0">{leaveButton}</div>
 
-      <div className="ml-auto flex min-w-0 items-center gap-2.5 pl-2 sm:pl-4">
-        <UserAvatar name={userName} avatarUrl={avatarUrl} size="md" />
-        <span className="max-w-[8rem] truncate text-sm font-semibold text-gray-900 sm:max-w-[10rem] sm:text-base">
-          {userName}
-        </span>
+      <div className="ml-auto shrink-0 pl-2 sm:pl-4">
+        {onProfile ? (
+          <button
+            type="button"
+            onClick={onProfile}
+            className="rounded-full transition-shadow hover:ring-2 hover:ring-primary-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            aria-label="View profile"
+            title="View profile"
+          >
+            <UserAvatar name={userName} avatarUrl={avatarUrl} size="md" />
+          </button>
+        ) : (
+          <UserAvatar name={userName} avatarUrl={avatarUrl} size="md" />
+        )}
       </div>
     </header>
   )

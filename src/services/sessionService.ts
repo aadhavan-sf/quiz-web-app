@@ -15,6 +15,44 @@ function requireClient() {
   return supabase
 }
 
+export const DAILY_NEW_SESSION_LIMIT = 3
+
+function startOfLocalDayIso(): string {
+  const day = new Date()
+  day.setHours(0, 0, 0, 0)
+  return day.toISOString()
+}
+
+export function dailySessionLimitMessage(used: number, limit = DAILY_NEW_SESSION_LIMIT): string {
+  return `Daily limit reached. You can start up to ${limit} new sessions per day (${used}/${limit} used). Resume an existing session or try again tomorrow.`
+}
+
+/** Sessions created since local midnight — used for the daily new-session cap. */
+export async function countSessionsStartedToday(userId: string): Promise<number> {
+  const client = requireClient()
+  const { count, error } = await client
+    .from('practice_sessions')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .gte('started_at', startOfLocalDayIso())
+
+  if (error) throw new Error(error.message)
+  return count ?? 0
+}
+
+export async function getDailySessionUsage(
+  userId: string,
+): Promise<{ used: number; limit: number; remaining: number; allowed: boolean }> {
+  const used = await countSessionsStartedToday(userId)
+  const limit = DAILY_NEW_SESSION_LIMIT
+  return {
+    used,
+    limit,
+    remaining: Math.max(0, limit - used),
+    allowed: used < limit,
+  }
+}
+
 export async function createPracticeSession(
   userId: string,
   mode: PracticeMode,
@@ -29,6 +67,11 @@ export async function createPracticeSession(
     throw new Error(
       `You already have an unfinished ${mode === 'mcq' ? 'MCQ' : 'interview'} session on ${sessionTopic(existing)}. Continue it or start fresh before creating another.`,
     )
+  }
+
+  const usage = await getDailySessionUsage(userId)
+  if (!usage.allowed) {
+    throw new Error(dailySessionLimitMessage(usage.used, usage.limit))
   }
 
   const startedAt = new Date(

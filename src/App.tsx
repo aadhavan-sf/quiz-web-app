@@ -33,7 +33,9 @@ import { clearQuizData, getUserName, setUserName } from './utils/storage'
 import { isSupabaseConfigured } from './lib/supabase'
 import {
   deletePracticeSession,
+  dailySessionLimitMessage,
   fetchInProgressSessionForModeAndTopic,
+  getDailySessionUsage,
 } from './services/sessionService'
 import { scrollToTop } from './utils/scrollToTop'
 import { getSessionProgress, sessionTopic } from './utils/sessionProgress'
@@ -189,6 +191,12 @@ function AppContent() {
       setError(null)
 
       if (user && isConfigured) {
+        const usage = await getDailySessionUsage(user.id).catch(() => null)
+        if (usage && !usage.allowed) {
+          setError(dailySessionLimitMessage(usage.used, usage.limit))
+          return
+        }
+
         const mode = request.mode ?? practiceMode
         if (mode) {
           const existing = await fetchInProgressSessionForModeAndTopic(
@@ -229,6 +237,16 @@ function AppContent() {
   const handleStartNewSession = useCallback(async () => {
     if (!pendingGenerate) return
     const { session, request } = pendingGenerate
+
+    if (user) {
+      const usage = await getDailySessionUsage(user.id).catch(() => null)
+      if (usage && !usage.allowed) {
+        setError(dailySessionLimitMessage(usage.used, usage.limit))
+        setPendingGenerate(null)
+        return
+      }
+    }
+
     setIsReplacingSession(true)
     try {
       await deletePracticeSession(session.id)
@@ -240,7 +258,7 @@ function AppContent() {
     } finally {
       setIsReplacingSession(false)
     }
-  }, [pendingGenerate, runGenerate])
+  }, [pendingGenerate, runGenerate, user])
 
   const handleResumeSession = useCallback(
     (stored: StoredPracticeSession) => {
@@ -420,6 +438,7 @@ function AppContent() {
             userName={sessionUserName}
             onBack={handleBackToModes}
             onGenerate={handleGenerate}
+            onProfile={() => setScreen('profile')}
           />
         )}
         {screen === 'generating' && (
@@ -431,7 +450,13 @@ function AppContent() {
           />
         )}
         {screen === 'quiz' && quiz.quizState && (
-          <QuizPage key="quiz" quiz={quiz} onSubmit={handleQuizSubmit} onLeave={handleQuizLeave} />
+          <QuizPage
+            key="quiz"
+            quiz={quiz}
+            onSubmit={handleQuizSubmit}
+            onLeave={handleQuizLeave}
+            onProfile={() => setScreen('profile')}
+          />
         )}
         {screen === 'review' && quiz.quizState && (
           <QuizReviewPage key="review" quizState={quiz.quizState} onViewResults={handleViewResults} />
@@ -453,6 +478,7 @@ function AppContent() {
             onUpdate={handleInterviewUpdate}
             onComplete={handleInterviewComplete}
             onLeave={handleInterviewLeave}
+            onProfile={() => setScreen('profile')}
           />
         )}
         {screen === 'interview-report' && interview.session && interviewReport && (

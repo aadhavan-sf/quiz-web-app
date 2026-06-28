@@ -12,6 +12,7 @@ import {
 import { BrandLogo } from '../components/BrandLogo'
 import { AppUserHeader } from '../components/AppUserHeader'
 import { useAuth } from '../context/AuthContext'
+import { getDailySessionUsage } from '../services/sessionService'
 import { fetchHealth } from '../utils/api'
 
 interface HomePageProps {
@@ -19,6 +20,7 @@ interface HomePageProps {
   userName: string
   onBack: () => void
   onGenerate: (request: ConfigureSessionRequest) => void
+  onProfile: () => void
 }
 
 const TOPIC_EXAMPLES = [
@@ -66,19 +68,34 @@ function aiSetupHint(
   return 'AI key not configured on the server.'
 }
 
-export function HomePage({ mode, userName, onBack, onGenerate }: HomePageProps) {
+export function HomePage({ mode, userName, onBack, onGenerate, onProfile }: HomePageProps) {
   const { user } = useAuth()
   const [topic, setTopic] = useState('')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(50)
   const [difficulty, setDifficulty] = useState<Difficulty>('Mixed')
   const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | null>(null)
   const [aiConfigured, setAiConfigured] = useState<boolean | null>(null)
+  const [sessionUsage, setSessionUsage] = useState<{
+    used: number
+    limit: number
+    remaining: number
+  } | null>(null)
 
   useEffect(() => {
     fetchHealth()
       .then((health) => setAiConfigured(health.aiConfigured))
       .catch(() => setAiConfigured(false))
   }, [])
+
+  useEffect(() => {
+    if (!user) {
+      setSessionUsage(null)
+      return
+    }
+    getDailySessionUsage(user.id)
+      .then(({ used, limit, remaining }) => setSessionUsage({ used, limit, remaining }))
+      .catch(() => setSessionUsage(null))
+  }, [user])
 
   const formComplete = topic.trim().length >= 2
   const canGenerate = formComplete
@@ -108,7 +125,7 @@ export function HomePage({ mode, userName, onBack, onGenerate }: HomePageProps) 
     >
       {user && (
         <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
-          <AppUserHeader />
+          <AppUserHeader onProfile={onProfile} />
         </div>
       )}
 
@@ -141,6 +158,13 @@ export function HomePage({ mode, userName, onBack, onGenerate }: HomePageProps) 
               ? `Hi ${userName}, set up your multiple-choice practice session.`
               : `Hi ${userName}, set up your AI interviewer session.`}
           </p>
+          {sessionUsage && (
+            <p className="mt-2 text-sm text-gray-500">
+              {sessionUsage.remaining > 0
+                ? `${sessionUsage.remaining} of ${sessionUsage.limit} new sessions left today`
+                : `Daily limit reached (${sessionUsage.used}/${sessionUsage.limit}). Resume an existing session or try again tomorrow.`}
+            </p>
+          )}
         </motion.div>
 
         {aiConfigured === false && onLocalDev && (
