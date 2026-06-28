@@ -25,7 +25,7 @@ export function InterviewEvaluatingScreen() {
       aria-busy="true"
     >
       <div className="max-w-sm text-center">
-        <div className="mx-auto mb-6 h-14 w-14 animate-spin rounded-full border-[3px] border-blue-600 border-t-transparent" />
+        <div className="mx-auto mb-6 h-14 w-14 animate-spin rounded-full border-[3px] border-primary-600 border-t-transparent" />
         <AnimatePresence mode="wait">
           <motion.p
             key={messageIndex}

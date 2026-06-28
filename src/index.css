@@ -2,6 +2,22 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary-50: #eef3ff;
+  --color-primary-100: #dce8ff;
+  --color-primary-200: #b8d0ff;
+  --color-primary-300: #8ab4ff;
+  --color-primary-400: #5890ff;
+  --color-primary-500: #2d68ff;
+  --color-primary-600: #2d68ff;
+  --color-primary-700: #2458e6;
+  --color-primary-800: #1e48cc;
+  --color-primary-900: #1a3db3;
+
+  --color-accent-50: #f0ebff;
+  --color-accent-500: #7c5cff;
+  --color-accent-600: #6d58ff;
+  --color-accent-700: #5c48e6;
 }
 
 * {
@@ -53,8 +69,8 @@ body {
 }
 
 .input-field:focus {
-  border-color: #3b82f6;
+  border-color: #2d68ff;
   outline: none;
-  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.15);
+  box-shadow: 0 0 0 3px rgb(45 104 255 / 0.15);
 }
 

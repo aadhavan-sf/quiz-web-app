@@ -14,7 +14,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-gray-200">
         <div
-          className="h-full rounded-full bg-blue-600 transition-all duration-500"
+          className="h-full rounded-full bg-primary-600 transition-all duration-500"
           style={{ width: `${(score / 10) * 100}%` }}
         />
       </div>
@@ -33,9 +33,9 @@ export function InterviewFeedbackCard({ evaluation }: InterviewFeedbackCardProps
     >
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">Evaluation Result</h3>
-        <div className="rounded-xl bg-blue-50 px-4 py-2 text-center">
-          <p className="text-xs font-medium text-blue-600">Overall Score</p>
-          <p className="text-2xl font-bold text-blue-700">
+        <div className="rounded-xl bg-primary-50 px-4 py-2 text-center">
+          <p className="text-xs font-medium text-primary-600">Overall Score</p>
+          <p className="text-2xl font-bold text-primary-700">
             {evaluation.overallScore.toFixed(1)} / 10
           </p>
         </div>

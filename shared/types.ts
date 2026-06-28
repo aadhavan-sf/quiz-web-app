@@ -21,6 +21,8 @@ export interface SessionConfig {
   difficulty: Difficulty
   questionCount: QuestionCount
   mode: PracticeMode
+  /** Session time limit in minutes; null = no limit (max 180) */
+  timeLimitMinutes?: number | null
 }
 
 export interface GenerateQuestionsRequest {
@@ -29,7 +31,11 @@ export interface GenerateQuestionsRequest {
   difficulty: Difficulty
   questionCount: QuestionCount
   mode?: PracticeMode
+  timeLimitMinutes?: number | null
 }
+
+/** Session setup from the configure screen — name comes from the signed-in profile. */
+export type ConfigureSessionRequest = Omit<GenerateQuestionsRequest, 'fullName'>
 
 export interface GenerateQuestionsResponse {
   questions: Question[]
@@ -43,6 +49,7 @@ export interface QuizConfig {
   topic: string
   difficulty: Difficulty
   questionCount: QuestionCount
+  timeLimitMinutes?: number | null
 }
 
 export interface AnswerRecord {
@@ -56,16 +63,38 @@ export interface QuizState {
   answers: Record<number, AnswerRecord>
   currentQuestionIndex: number
   startedAt: number
+  /** Question IDs marked "skip for now" — revisit via tracker */
+  skippedQuestionIds?: number[]
+  /** Cloud session id when logged in */
+  sessionId?: string
 }
 
 export type AppScreen =
   | 'mode-select'
+  | 'login'
+  | 'profile'
   | 'config'
   | 'generating'
   | 'quiz'
+  | 'review'
   | 'results'
   | 'interview'
   | 'interview-report'
+
+export type SessionStatus = 'in_progress' | 'completed'
+
+export interface StoredPracticeSession {
+  id: string
+  user_id: string
+  mode: PracticeMode
+  status: SessionStatus
+  config: SessionConfig | QuizConfig
+  state: QuizState | InterviewSessionState
+  results: QuizResults | InterviewReport | null
+  started_at: string
+  updated_at: string
+  completed_at: string | null
+}
 
 export type PerformanceLevel = 'Excellent' | 'Good' | 'Average' | 'Needs Improvement'
 
@@ -112,6 +141,7 @@ export interface InterviewEvaluation {
 }
 
 export interface InterviewHistoryEntry {
+  questionIndex: number
   question: InterviewQuestion
   userAnswer: string
   evaluation: InterviewEvaluation
@@ -124,6 +154,12 @@ export interface InterviewSessionState {
   history: InterviewHistoryEntry[]
   currentQuestion: InterviewQuestion | null
   phase: 'answering' | 'feedback' | 'evaluating'
+  /** Slot indices the user chose to skip — revisit via tracker */
+  skippedQuestionIndices?: number[]
+  /** Questions assigned to each slot (for skip / revisit) */
+  questionBank?: Record<number, InterviewQuestion>
+  /** Cloud session id when logged in */
+  sessionId?: string
 }
 
 export interface InterviewStartRequest {
@@ -152,6 +188,18 @@ export interface InterviewEvaluateResponse {
   isComplete: boolean
 }
 
+export interface InterviewSkipRequest {
+  config: SessionConfig
+  history: InterviewHistoryEntry[]
+  questionIndex: number
+  skippedQuestions: InterviewQuestion[]
+}
+
+export interface InterviewSkipResponse {
+  nextQuestion: InterviewQuestion | null
+  isComplete: boolean
+}
+
 export interface InterviewReportRequest {
   config: SessionConfig
   history: InterviewHistoryEntry[]
@@ -176,3 +224,22 @@ export interface InterviewReport {
 export const QUESTION_COUNT_OPTIONS: QuestionCount[] = [25, 50, 100, 150, 200]
 
 export const DIFFICULTY_OPTIONS: Difficulty[] = ['Easy', 'Intermediate', 'Advanced', 'Mixed']
+
+export const MAX_TIME_LIMIT_MINUTES = 180
+
+export interface TimeLimitOption {
+  label: string
+  minutes: number | null
+}
+
+export const TIME_LIMIT_OPTIONS: TimeLimitOption[] = [
+  { label: 'No time limit', minutes: null },
+  { label: '15 minutes', minutes: 15 },
+  { label: '30 minutes', minutes: 30 },
+  { label: '45 minutes', minutes: 45 },
+  { label: '1 hour', minutes: 60 },
+  { label: '1 hour 30 min', minutes: 90 },
+  { label: '2 hours', minutes: 120 },
+  { label: '2 hours 30 min', minutes: 150 },
+  { label: '3 hours', minutes: MAX_TIME_LIMIT_MINUTES },
+]

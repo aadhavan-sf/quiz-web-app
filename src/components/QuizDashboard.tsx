@@ -1,10 +1,9 @@
 import { motion } from 'framer-motion'
 import type { Difficulty } from '../types/question'
-import { formatTime, getAccuracy } from '../utils/quizUtils'
+import { getAccuracy } from '../utils/quizUtils'
 import { ProgressBar } from './ProgressBar'
 
 interface QuizDashboardProps {
-  userName: string
   topic: string
   difficulty: Difficulty
   currentQuestion: number
@@ -13,11 +12,10 @@ interface QuizDashboardProps {
   correctCount: number
   wrongCount: number
   answeredCount: number
-  elapsedSeconds: number
+  skippedCount?: number
 }
 
 export function QuizDashboard({
-  userName,
   topic,
   difficulty,
   currentQuestion,
@@ -26,7 +24,7 @@ export function QuizDashboard({
   correctCount,
   wrongCount,
   answeredCount,
-  elapsedSeconds,
+  skippedCount = 0,
 }: QuizDashboardProps) {
   const remaining = totalQuestions - answeredCount
   const accuracy = getAccuracy(correctCount, answeredCount)
@@ -39,16 +37,12 @@ export function QuizDashboard({
       aria-label="Quiz progress dashboard"
     >
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 text-sm font-medium text-gray-900">
-            <span aria-hidden="true">👤</span>
-            <span>Hello, {userName}</span>
-          </div>
+        <div className="flex flex-wrap items-center justify-end gap-2">
           <div className="flex flex-wrap gap-2 text-xs">
             <span className="rounded-full bg-gray-100 px-2.5 py-1 font-medium text-gray-700">
               {topic}
             </span>
-            <span className="rounded-full bg-blue-50 px-2.5 py-1 font-medium text-blue-700">
+            <span className="rounded-full bg-primary-50 px-2.5 py-1 font-medium text-primary-700">
               {difficulty}
             </span>
           </div>
@@ -61,8 +55,10 @@ export function QuizDashboard({
           <span className="text-green-600">✅ Correct: {correctCount}</span>
           <span className="text-red-600">❌ Wrong: {wrongCount}</span>
           <span className="text-gray-600">📋 Remaining: {remaining}</span>
+          {skippedCount > 0 && (
+            <span className="text-amber-600">⏭ Skipped: {skippedCount}</span>
+          )}
           <span className="text-gray-600">🎯 Accuracy: {accuracy}%</span>
-          <span className="text-gray-600">⏱ {formatTime(elapsedSeconds)}</span>
         </div>
       </div>
 

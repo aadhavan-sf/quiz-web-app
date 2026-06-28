@@ -10,8 +10,8 @@ export function SpeechTestPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8">
       <div className="mx-auto max-w-2xl space-y-6">
-        <header className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-700">Dev only</p>
+        <header className="rounded-2xl border border-primary-200 bg-primary-50 p-5">
+          <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">Dev only</p>
           <h1 className="mt-1 text-2xl font-bold text-gray-900">Speech-to-text test</h1>
           <p className="mt-2 text-sm leading-relaxed text-gray-700">
             Uses <strong>server-side Groq Whisper</strong> (not the browser speech API — that fails
@@ -52,7 +52,7 @@ export function SpeechTestPage() {
           </button>
           <a
             href="/"
-            className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-primary-700"
           >
             Back to app
           </a>

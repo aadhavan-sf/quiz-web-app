@@ -18,7 +18,7 @@ export function ProgressBar({ percentage, className = '' }: ProgressBarProps) {
       aria-label={`Quiz progress: ${clamped}%`}
     >
       <motion.div
-        className="h-full rounded-full bg-blue-600"
+        className="h-full rounded-full bg-primary-600"
         initial={{ width: 0 }}
         animate={{ width: `${clamped}%` }}
         transition={{ duration: 0.4, ease: 'easeOut' }}

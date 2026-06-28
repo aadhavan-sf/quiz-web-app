@@ -16,7 +16,7 @@ export function ExpandableCard({ title, summary, defaultOpen = false, children }
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-4 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
         aria-expanded={open}
       >
         <div className="min-w-0 flex-1">

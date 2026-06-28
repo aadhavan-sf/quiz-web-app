@@ -2,7 +2,9 @@ import type {
   Difficulty,
   InterviewEvaluateRequest,
   InterviewHistoryEntry,
+  InterviewQuestion,
   InterviewStartRequest,
+  SessionConfig,
 } from '../../shared/types.js'
 
 const INTERVIEWER_MINDSET = `
@@ -201,5 +203,56 @@ Return JSON:
     }
   },
   ${nextQuestionBlock}
+}`
+}
+
+export function buildInterviewSkipPrompt(
+  config: SessionConfig,
+  history: InterviewHistoryEntry[],
+  questionIndex: number,
+  skippedQuestions: InterviewQuestion[],
+): string {
+  const nextIndex = questionIndex + 1
+  const isLast = nextIndex >= config.questionCount
+  const covered = getCoveredSubtopics(history)
+  const asked = getAskedQuestionsSummary(history)
+  const skippedList =
+    skippedQuestions.length > 0
+      ? skippedQuestions.map((q, i) => `${i + 1}. [${q.subtopic}] ${q.question}`).join('\n')
+      : 'None'
+
+  if (isLast) {
+    return `The candidate skipped question ${questionIndex + 1} of ${config.questionCount}. No more questions to generate.`
+  }
+
+  return `The candidate skipped question ${questionIndex + 1} without answering. Generate the NEXT question only (no evaluation).
+
+SESSION CONFIG:
+- Topic: "${config.topic}"
+- Difficulty: ${config.difficulty}
+- Generate question ${nextIndex + 1} of ${config.questionCount}
+
+Previously answered questions:
+${asked}
+
+Skipped (not yet answered):
+${skippedList}
+
+Areas already covered: ${covered.length > 0 ? covered.join(', ') : 'none'}
+
+${difficultyGuidance(config.difficulty, nextIndex, config.questionCount)}
+${QUESTION_STYLE}
+${ANTI_REPETITION}
+
+Return JSON:
+{
+  "nextQuestion": {
+    "id": ${nextIndex + 1},
+    "topic": "${config.topic}",
+    "subtopic": "new area",
+    "difficulty": "Easy" | "Intermediate" | "Advanced",
+    "question": "open-ended interview question",
+    "contextualIntro": null
+  }
 }`
 }

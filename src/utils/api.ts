@@ -5,6 +5,8 @@ import type {
   InterviewEvaluateResponse,
   InterviewReport,
   InterviewReportRequest,
+  InterviewSkipRequest,
+  InterviewSkipResponse,
   InterviewStartRequest,
   InterviewStartResponse,
 } from '../types/question'
@@ -62,6 +64,12 @@ export function evaluateInterviewAnswer(
   request: InterviewEvaluateRequest,
 ): Promise<InterviewEvaluateResponse> {
   return post('/api/interview/evaluate', request)
+}
+
+export function skipInterviewQuestion(
+  request: InterviewSkipRequest,
+): Promise<InterviewSkipResponse> {
+  return post('/api/interview/skip', request)
 }
 
 export function fetchInterviewReport(

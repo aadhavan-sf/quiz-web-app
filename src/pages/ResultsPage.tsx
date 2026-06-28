@@ -95,7 +95,7 @@ export function ResultsPage({
                     <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600">
                       {question.subtopic}
                     </span>
-                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">
+                    <span className="rounded-full bg-primary-50 px-2 py-0.5 text-primary-700">
                       {question.difficulty}
                     </span>
                   </div>
@@ -140,7 +140,7 @@ export function ResultsPage({
             onClick={onNewQuiz}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="rounded-xl bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700"
+            className="rounded-xl bg-primary-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-primary-700"
           >
             Generate New Quiz
           </motion.button>

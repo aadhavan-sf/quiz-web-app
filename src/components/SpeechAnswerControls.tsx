@@ -75,12 +75,12 @@ export function SpeechAnswerControls({
           whileTap={disabled || speech.isTranscribing ? undefined : { scale: 0.97 }}
           aria-label={speech.isRecording ? 'Stop recording' : 'Start recording answer'}
           aria-pressed={speech.isRecording}
-          className={`flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 ${
+          className={`flex min-h-12 min-w-12 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-50 ${
             speech.isRecording
               ? 'bg-red-600 text-white hover:bg-red-700'
               : speech.isTranscribing
                 ? 'bg-gray-400 text-white'
-                : 'border border-gray-200 bg-white text-gray-800 hover:border-blue-300 hover:bg-blue-50'
+                : 'border border-gray-200 bg-white text-gray-800 hover:border-primary-300 hover:bg-primary-50'
           }`}
         >
           <span className="text-lg" aria-hidden>
@@ -97,7 +97,7 @@ export function SpeechAnswerControls({
         )}
 
         {speech.isTranscribing && (
-          <span className="text-sm text-blue-600">Sending audio to Groq Whisper…</span>
+          <span className="text-sm text-primary-600">Sending audio to Groq Whisper…</span>
         )}
       </div>
 

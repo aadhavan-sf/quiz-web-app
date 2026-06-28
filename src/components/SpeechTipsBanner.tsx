@@ -19,9 +19,9 @@ export function SpeechTipsBanner({ variant = 'default' }: SpeechTipsBannerProps)
   }
 
   return (
-    <div className="rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-relaxed text-blue-900">
+    <div className="rounded-xl border border-primary-100 bg-primary-50 px-4 py-3 text-sm leading-relaxed text-primary-900">
       <p className="font-semibold">Tip for best transcription</p>
-      <ul className="mt-1.5 list-inside list-disc space-y-1 text-blue-800">
+      <ul className="mt-1.5 list-inside list-disc space-y-1 text-primary-800">
         <li>Speak slightly slower than normal conversation</li>
         <li>Pause briefly between sentences or key points</li>
         <li>Keep the mic close and avoid background noise</li>

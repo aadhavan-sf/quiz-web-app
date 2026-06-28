@@ -1,8 +1,16 @@
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import type { PracticeMode } from '../types/question'
+import { BrandLogo } from '../components/BrandLogo'
+import { AppUserHeader } from '../components/AppUserHeader'
+import { useAuth } from '../context/AuthContext'
+import { fetchInProgressSessions } from '../services/sessionService'
+import type { StoredPracticeSession } from '../types/question'
 
 interface ModeSelectionPageProps {
   onSelect: (mode: PracticeMode) => void
+  onProfile: () => void
+  onResume: (session: StoredPracticeSession) => void
 }
 
 const MODES = [
@@ -26,30 +34,94 @@ const MODES = [
   },
 ]
 
-export function ModeSelectionPage({ onSelect }: ModeSelectionPageProps) {
+export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelectionPageProps) {
+  const { user } = useAuth()
+  const [inProgress, setInProgress] = useState<StoredPracticeSession[]>([])
+  const [loadingSessions, setLoadingSessions] = useState(false)
+
+  useEffect(() => {
+    if (!user) {
+      setInProgress([])
+      return
+    }
+    setLoadingSessions(true)
+    fetchInProgressSessions(user.id)
+      .then(setInProgress)
+      .catch(() => setInProgress([]))
+      .finally(() => setLoadingSessions(false))
+  }, [user])
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex min-h-screen flex-col items-center justify-center px-4 py-12"
+      className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12"
     >
+      {user && (
+        <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+          <AppUserHeader onProfile={onProfile} />
+        </div>
+      )}
+
       <div className="w-full max-w-3xl">
+        {!user && (
+          <div className="mb-6">
+            <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              Local dev mode — add Supabase keys to <code className="rounded bg-amber-100 px-1">.env</code> to enable sign-in
+            </p>
+          </div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="mb-10 text-center"
         >
-          <div className="mx-auto mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 text-2xl text-white shadow-lg shadow-blue-600/25">
-            ✨
+          <div className="mx-auto mb-6 flex justify-center">
+            <BrandLogo size="lg" />
           </div>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            AI Interview Practice
-          </h1>
           <p className="mt-3 text-base leading-relaxed text-gray-600">
             Choose how you want to practice before generating your session.
           </p>
         </motion.div>
+
+        {loadingSessions && (
+          <p className="mb-4 text-center text-sm text-gray-500">Checking for saved sessions…</p>
+        )}
+
+        {inProgress.length > 0 && (
+          <div className="mb-8 space-y-3">
+            <h2 className="text-sm font-semibold text-gray-900">Resume a session</h2>
+            {inProgress.map((session) => {
+              const config = session.config as { topic?: string; questionCount?: number }
+              const state = session.state as { answers?: Record<string, unknown>; history?: unknown[] }
+              const progress =
+                session.mode === 'mcq'
+                  ? Object.keys(state.answers ?? {}).length
+                  : (state.history?.length ?? 0)
+
+              return (
+                <button
+                  key={session.id}
+                  type="button"
+                  onClick={() => onResume(session)}
+                  className="flex w-full items-center justify-between rounded-xl border border-primary-200 bg-primary-50/50 px-4 py-3 text-left hover:border-primary-300"
+                >
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {session.mode === 'mcq' ? 'MCQ' : 'Interview'} · {config.topic}
+                    </p>
+                    <p className="text-xs text-gray-600">
+                      {progress} of {config.questionCount} completed
+                    </p>
+                  </div>
+                  <span className="text-sm font-semibold text-primary-600">Resume →</span>
+                </button>
+              )
+            })}
+          </div>
+        )}
 
         <div className="grid gap-5 sm:grid-cols-2">
           {MODES.map((mode, index) => (
@@ -62,26 +134,21 @@ export function ModeSelectionPage({ onSelect }: ModeSelectionPageProps) {
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => onSelect(mode.id)}
-              className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 text-left shadow-sm transition-shadow hover:border-blue-300 hover:shadow-md"
+              className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 text-left shadow-sm transition-shadow hover:border-primary-300 hover:shadow-md"
             >
               <span className="mb-4 text-3xl">{mode.icon}</span>
               <h2 className="text-xl font-bold text-gray-900">{mode.title}</h2>
-              <p className="mt-1 text-sm font-medium text-blue-600">{mode.subtitle}</p>
-              <p className="mt-3 text-sm leading-relaxed text-gray-600">
-                {mode.description}
-              </p>
+              <p className="mt-1 text-sm font-medium text-primary-600">{mode.subtitle}</p>
+              <p className="mt-3 text-sm leading-relaxed text-gray-600">{mode.description}</p>
               <ul className="mt-5 space-y-2">
                 {mode.features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="flex items-center gap-2 text-sm text-gray-700"
-                  >
+                  <li key={feature} className="flex items-center gap-2 text-sm text-gray-700">
                     <span className="text-green-500">✓</span>
                     {feature}
                   </li>
                 ))}
               </ul>
-              <span className="mt-6 text-sm font-semibold text-blue-600 group-hover:underline">
+              <span className="mt-6 text-sm font-semibold text-primary-600 group-hover:underline">
                 Select {mode.title} →
               </span>
             </motion.button>

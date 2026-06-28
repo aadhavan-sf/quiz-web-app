@@ -5,6 +5,7 @@ import { getAiProvider, isAiConfigured } from './services/aiClient.js'
 import {
   evaluateAnswer,
   generateInterviewReport,
+  skipInterviewQuestion,
   startInterview,
   validateInterviewStart,
 } from './services/interviewService.js'
@@ -57,6 +58,21 @@ export function createApp() {
       res.json({ evaluation, nextQuestion, isComplete })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to evaluate answer'
+      res.status(400).json({ error: message })
+    }
+  })
+
+  app.post('/api/interview/skip', async (req: Request, res: Response) => {
+    try {
+      const body = req.body as {
+        config: { questionCount: number }
+        questionIndex: number
+      }
+      const { nextQuestion } = await skipInterviewQuestion(req.body)
+      const isComplete = body.questionIndex + 1 >= body.config.questionCount
+      res.json({ nextQuestion, isComplete })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to skip question'
       res.status(400).json({ error: message })
     }
   })

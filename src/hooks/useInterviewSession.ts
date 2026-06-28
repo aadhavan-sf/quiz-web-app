@@ -23,5 +23,15 @@ export function useInterviewSession() {
 
   const resetSession = useCallback(() => clearSession(), [clearSession])
 
-  return { session, initSession, updateSession, resetSession }
+  const attachSessionId = useCallback(
+    (sessionId: string) => {
+      setSession((prev) => {
+        if (!prev || prev.sessionId === sessionId) return prev
+        return { ...prev, sessionId }
+      })
+    },
+    [setSession],
+  )
+
+  return { session, initSession, updateSession, resetSession, attachSessionId }
 }

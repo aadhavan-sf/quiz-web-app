@@ -13,7 +13,7 @@ interface OptionButtonProps {
 
 const stateStyles: Record<OptionState, string> = {
   default:
-    'border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50 text-gray-900',
+    'border-gray-200 bg-white hover:border-primary-300 hover:bg-primary-50 text-gray-900',
   'selected-correct': 'border-green-500 bg-green-50 text-green-900',
   'selected-wrong': 'border-red-500 bg-red-50 text-red-900',
   'revealed-correct': 'border-green-500 bg-green-50 text-green-900',

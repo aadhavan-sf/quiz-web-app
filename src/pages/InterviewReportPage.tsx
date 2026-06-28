@@ -28,7 +28,7 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
 
         <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-6 text-center">
-            <p className="text-5xl font-bold text-blue-600">
+            <p className="text-5xl font-bold text-primary-600">
               {report.overallInterviewScore.toFixed(1)}
             </p>
             <p className="text-sm text-gray-500">Overall Interview Score / 10</p>
@@ -70,7 +70,7 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
             {report.recommendedLearningTopics.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700"
+                className="rounded-full bg-primary-50 px-3 py-1 text-sm text-primary-700"
               >
                 {t}
               </span>
@@ -90,7 +90,7 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
             onClick={onNewSession}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="rounded-xl bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-xl bg-primary-600 px-8 py-3.5 text-sm font-semibold text-white hover:bg-primary-700"
           >
             Start New Session
           </motion.button>

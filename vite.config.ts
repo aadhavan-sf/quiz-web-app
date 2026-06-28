@@ -28,4 +28,7 @@ function apiDevServer(): Plugin {
 export default defineConfig(() => ({
   base: process.env.VITE_BASE_PATH || '/',
   plugins: [react(), tailwindcss(), apiDevServer()],
+  optimizeDeps: {
+    include: ['@supabase/supabase-js', '@supabase/ssr'],
+  },
 }))

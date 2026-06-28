@@ -8,6 +8,12 @@ interface QuestionCardProps {
   question: Question
   answer: AnswerRecord | null
   onSelect: (index: number) => void
+  canSkip?: boolean
+  onSkip?: () => void
+  showNext?: boolean
+  nextLabel?: string
+  onNext?: () => void
+  highlightSubmit?: boolean
 }
 
 function getOptionState(
@@ -22,7 +28,17 @@ function getOptionState(
   return 'default'
 }
 
-export function QuestionCard({ question, answer, onSelect }: QuestionCardProps) {
+export function QuestionCard({
+  question,
+  answer,
+  onSelect,
+  canSkip = false,
+  onSkip,
+  showNext = false,
+  nextLabel = 'Next Question',
+  onNext,
+  highlightSubmit = false,
+}: QuestionCardProps) {
   const isLocked = answer !== null
 
   useEffect(() => {
@@ -50,13 +66,45 @@ export function QuestionCard({ question, answer, onSelect }: QuestionCardProps) 
       transition={{ duration: 0.3 }}
       className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
     >
-      <div className="mb-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
-          {question.subtopic}
-        </span>
-        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-          {question.difficulty}
-        </span>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+            {question.subtopic}
+          </span>
+          <span className="rounded-full bg-primary-50 px-2.5 py-1 text-xs font-medium text-primary-700">
+            {question.difficulty}
+          </span>
+        </div>
+
+        {(canSkip || showNext) && (
+          <div className="ml-auto hidden items-center gap-2 sm:flex">
+            {canSkip && onSkip && (
+              <motion.button
+                type="button"
+                onClick={onSkip}
+                whileTap={{ scale: 0.98 }}
+                className="min-h-10 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+              >
+                Skip for now
+              </motion.button>
+            )}
+            {showNext && onNext && (
+              <motion.button
+                type="button"
+                onClick={onNext}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className={`min-h-10 rounded-xl px-5 py-2 text-sm font-semibold text-white shadow-sm ${
+                  highlightSubmit
+                    ? 'bg-accent-600 hover:bg-accent-600/90 ring-2 ring-accent-500/30'
+                    : 'bg-primary-600 hover:bg-primary-700'
+                }`}
+              >
+                {nextLabel}
+              </motion.button>
+            )}
+          </div>
+        )}
       </div>
       <h2 className="mb-6 text-lg font-semibold leading-relaxed text-gray-900 sm:text-xl">
         {question.question}

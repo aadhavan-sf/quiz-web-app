@@ -3,17 +3,22 @@ import { useEffect, useState } from 'react'
 import {
   DIFFICULTY_OPTIONS,
   QUESTION_COUNT_OPTIONS,
+  TIME_LIMIT_OPTIONS,
+  type ConfigureSessionRequest,
   type Difficulty,
-  type GenerateQuestionsRequest,
   type PracticeMode,
   type QuestionCount,
 } from '../types/question'
+import { BrandLogo } from '../components/BrandLogo'
+import { AppUserHeader } from '../components/AppUserHeader'
+import { useAuth } from '../context/AuthContext'
 import { fetchHealth } from '../utils/api'
 
 interface HomePageProps {
   mode: PracticeMode
+  userName: string
   onBack: () => void
-  onGenerate: (request: GenerateQuestionsRequest) => void
+  onGenerate: (request: ConfigureSessionRequest) => void
 }
 
 const TOPIC_EXAMPLES = [
@@ -61,11 +66,12 @@ function aiSetupHint(
   return 'AI key not configured on the server.'
 }
 
-export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
-  const [fullName, setFullName] = useState('')
+export function HomePage({ mode, userName, onBack, onGenerate }: HomePageProps) {
+  const { user } = useAuth()
   const [topic, setTopic] = useState('')
   const [questionCount, setQuestionCount] = useState<QuestionCount>(50)
   const [difficulty, setDifficulty] = useState<Difficulty>('Mixed')
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState<number | null>(null)
   const [aiConfigured, setAiConfigured] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -74,7 +80,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
       .catch(() => setAiConfigured(false))
   }, [])
 
-  const formComplete = fullName.trim().length >= 2 && topic.trim().length >= 2
+  const formComplete = topic.trim().length >= 2
   const canGenerate = formComplete
 
   const onGitHubPages = isGitHubPagesHost()
@@ -85,11 +91,11 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
     e.preventDefault()
     if (!canGenerate) return
     onGenerate({
-      fullName: fullName.trim(),
       topic: topic.trim(),
       difficulty,
       questionCount,
       mode,
+      timeLimitMinutes,
     })
   }
 
@@ -98,9 +104,19 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="flex min-h-screen flex-col items-center justify-center px-4 py-12"
+      className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12"
     >
+      {user && (
+        <div className="absolute right-4 top-4 z-10 sm:right-6 sm:top-6">
+          <AppUserHeader />
+        </div>
+      )}
+
       <div className="w-full max-w-lg">
+        <div className="mb-6 flex justify-center">
+          <BrandLogo size="sm" />
+        </div>
+
         <button
           type="button"
           onClick={onBack}
@@ -114,7 +130,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <span className="mb-4 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+          <span className="mb-4 inline-block rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
             {mode === 'mcq' ? '☑️ MCQ Practice' : '💬 Interview Practice'}
           </span>
           <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
@@ -122,8 +138,8 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           </h1>
           <p className="mt-3 text-base leading-relaxed text-gray-600">
             {mode === 'mcq'
-              ? 'Set up your multiple-choice practice session.'
-              : 'Set up your AI interviewer session. Questions are generated for your exact topic, difficulty, and count.'}
+              ? `Hi ${userName}, set up your multiple-choice practice session.`
+              : `Hi ${userName}, set up your AI interviewer session.`}
           </p>
         </motion.div>
 
@@ -237,22 +253,6 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           className="space-y-7 rounded-2xl border border-gray-200 bg-white p-7 shadow-sm sm:space-y-8 sm:p-10"
         >
           <div className="space-y-3">
-            <label htmlFor="full-name" className="block text-sm font-medium text-gray-700">
-              Full Name
-            </label>
-            <input
-              id="full-name"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Enter your full name"
-              autoComplete="name"
-              className="input-field"
-              aria-required="true"
-            />
-          </div>
-
-          <div className="space-y-3">
             <label htmlFor="topic" className="block text-sm font-medium text-gray-700">
               Interview Topic
             </label>
@@ -273,8 +273,8 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                   onClick={() => setTopic(example)}
                   className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     topic === example
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
-                      : 'border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
+                      ? 'border-primary-600 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 text-gray-600 hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700'
                   }`}
                 >
                   {example}
@@ -306,6 +306,33 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
             </select>
           </div>
 
+          <div className="space-y-3">
+            <label htmlFor="time-limit" className="block text-sm font-medium text-gray-700">
+              Practice Time Limit
+            </label>
+            <select
+              id="time-limit"
+              value={timeLimitMinutes ?? ''}
+              onChange={(e) => {
+                const value = e.target.value
+                setTimeLimitMinutes(value === '' ? null : Number(value))
+              }}
+              className="input-field select-field"
+            >
+              {TIME_LIMIT_OPTIONS.map((option) => (
+                <option
+                  key={option.label}
+                  value={option.minutes ?? ''}
+                >
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500">
+              When the limit is reached, your session ends automatically. Maximum 3 hours.
+            </p>
+          </div>
+
           <fieldset className="space-y-4">
             <legend className="block text-sm font-medium text-gray-700">
               Difficulty
@@ -316,7 +343,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                   key={level}
                   className={`flex cursor-pointer items-center justify-center rounded-xl border px-4 py-3 text-sm font-medium transition-colors ${
                     difficulty === level
-                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      ? 'border-primary-600 bg-primary-50 text-primary-700'
                       : 'border-gray-200 text-gray-600 hover:border-gray-300'
                   }`}
                 >
@@ -340,7 +367,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
               disabled={!canGenerate}
               whileHover={canGenerate ? { scale: 1.02 } : undefined}
               whileTap={canGenerate ? { scale: 0.98 } : undefined}
-              className="w-full rounded-xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
+              className="w-full rounded-xl bg-primary-600 px-6 py-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
             >
               {mode === 'mcq' ? 'Generate Questions' : 'Start Interview'}
             </motion.button>

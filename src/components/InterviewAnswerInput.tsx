@@ -39,12 +39,12 @@ export function InterviewAnswerInput({
           whileTap={disabled || speech.isTranscribing ? undefined : { scale: 0.98 }}
           aria-label={speech.isRecording ? 'Stop recording' : 'Record your answer'}
           aria-pressed={speech.isRecording}
-          className={`flex w-full min-h-14 touch-manipulation items-center justify-center gap-3 rounded-xl px-5 py-4 text-base font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-16 ${
+          className={`flex w-full min-h-14 touch-manipulation items-center justify-center gap-3 rounded-xl px-5 py-4 text-base font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:cursor-not-allowed disabled:opacity-50 sm:min-h-16 ${
             speech.isRecording
               ? 'bg-red-600 text-white'
               : speech.isTranscribing
                 ? 'bg-gray-100 text-gray-500'
-                : 'bg-blue-600 text-white active:bg-blue-800'
+                : 'bg-primary-600 text-white active:bg-primary-800'
           }`}
         >
           <span
@@ -53,7 +53,7 @@ export function InterviewAnswerInput({
                 ? 'bg-red-500'
                 : speech.isTranscribing
                   ? 'bg-gray-200'
-                  : 'bg-blue-500'
+                  : 'bg-primary-500'
             }`}
             aria-hidden
           >
@@ -68,7 +68,7 @@ export function InterviewAnswerInput({
                   : 'Record Answer'}
             </span>
             {!speech.isRecording && !speech.isTranscribing && (
-              <span className="text-xs font-normal text-blue-100">
+              <span className="text-xs font-normal text-primary-100">
                 Speak slowly — pause between points
               </span>
             )}

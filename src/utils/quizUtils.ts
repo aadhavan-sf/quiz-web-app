@@ -54,7 +54,7 @@ export function getPerformanceBadgeStyles(level: PerformanceLevel): string {
     case 'Excellent':
       return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     case 'Good':
-      return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
+      return 'bg-primary-500/10 text-primary-600 border-primary-500/20'
     case 'Average':
       return 'bg-amber-500/10 text-amber-600 border-amber-500/20'
     case 'Needs Improvement':
@@ -65,4 +65,14 @@ export function getPerformanceBadgeStyles(level: PerformanceLevel): string {
 export function getAccuracy(correct: number, answered: number): number {
   if (answered === 0) return 0
   return Math.round((correct / answered) * 100)
+}
+
+export function formatTimeLimitLabel(minutes: number | null | undefined): string {
+  if (minutes == null || minutes <= 0) return 'No limit'
+  if (minutes === 60) return '1 hour'
+  if (minutes === 90) return '1h 30m'
+  if (minutes === 120) return '2 hours'
+  if (minutes === 150) return '2h 30m'
+  if (minutes === 180) return '3 hours'
+  return `${minutes} min`
 }

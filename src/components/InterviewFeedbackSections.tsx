@@ -14,7 +14,7 @@ function ScoreBar({ label, score }: { label: string; score: number }) {
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-gray-200">
         <div
-          className="h-full rounded-full bg-blue-600 transition-all duration-500"
+          className="h-full rounded-full bg-primary-600 transition-all duration-500"
           style={{ width: `${(score / 10) * 100}%` }}
         />
       </div>
@@ -39,8 +39,8 @@ export function InterviewFeedbackSections({ evaluation }: InterviewFeedbackSecti
         defaultOpen
       >
         <div className="flex items-center gap-4">
-          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-50">
-            <span className="text-3xl font-bold text-blue-700">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-primary-50">
+            <span className="text-3xl font-bold text-primary-700">
               {evaluation.overallScore.toFixed(1)}
             </span>
           </div>

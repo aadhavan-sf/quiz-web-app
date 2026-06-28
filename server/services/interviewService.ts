@@ -5,11 +5,13 @@ import type {
   InterviewQuestion,
   InterviewReport,
   InterviewReportRequest,
+  InterviewSkipRequest,
   InterviewStartRequest,
   QuestionCount,
 } from '../../shared/types.js'
 import {
   buildInterviewEvaluatePrompt,
+  buildInterviewSkipPrompt,
   buildInterviewStartPrompt,
   buildInterviewSystemPrompt,
 } from './interviewPrompts.js'
@@ -106,6 +108,29 @@ export async function evaluateAnswer(
   return {
     evaluation: normalizeEvaluation(result.evaluation),
     nextQuestion: result.nextQuestion ? normalizeQuestion(result.nextQuestion, config.topic) : null,
+  }
+}
+
+export async function skipInterviewQuestion(
+  request: InterviewSkipRequest,
+): Promise<{ nextQuestion: InterviewQuestion | null }> {
+  const { config, history, questionIndex, skippedQuestions } = request
+  const isLast = questionIndex + 1 >= config.questionCount
+
+  if (isLast) {
+    return { nextQuestion: null }
+  }
+
+  const result = await chatJson<{ nextQuestion: InterviewQuestion }>(
+    buildInterviewSystemPrompt(config.topic),
+    buildInterviewSkipPrompt(config, history, questionIndex, skippedQuestions),
+    QUESTION_TEMPERATURE,
+  )
+
+  return {
+    nextQuestion: result.nextQuestion
+      ? normalizeQuestion(result.nextQuestion, config.topic)
+      : null,
   }
 }
 
