@@ -52,13 +52,13 @@ export function getOptionLabel(index: number): string {
 export function getPerformanceBadgeStyles(level: PerformanceLevel): string {
   switch (level) {
     case 'Excellent':
-      return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
+      return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
     case 'Good':
-      return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+      return 'bg-blue-500/10 text-blue-600 border-blue-500/20'
     case 'Average':
-      return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20'
+      return 'bg-amber-500/10 text-amber-600 border-amber-500/20'
     case 'Needs Improvement':
-      return 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20'
+      return 'bg-red-500/10 text-red-600 border-red-500/20'
   }
 }
 

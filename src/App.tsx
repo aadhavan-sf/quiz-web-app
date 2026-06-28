@@ -1,8 +1,6 @@
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo, useState } from 'react'
 import { GeneratingSkeleton } from './components/GeneratingSkeleton'
-import { ThemeToggle } from './components/ThemeToggle'
-import { ThemeProvider } from './hooks/useTheme'
 import { useInterviewSession } from './hooks/useInterviewSession'
 import { useQuiz } from './hooks/useQuiz'
 import { HomePage } from './pages/HomePage'
@@ -178,18 +176,16 @@ function AppContent() {
 
   return (
     <>
-      <ThemeToggle />
-
       {showError && (
         <div className="fixed left-1/2 top-20 z-50 w-full max-w-md -translate-x-1/2 px-4">
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
             {error?.toLowerCase().includes('openai') && error?.toLowerCase().includes('quota') && (
-              <p className="mt-2 border-t border-red-200 pt-2 dark:border-red-800">
+              <p className="mt-2 border-t border-red-200 pt-2">
                 Use the free Groq key instead: add{' '}
-                <code className="rounded bg-red-100 px-1 dark:bg-red-900">GROQ_API_KEY</code> in{' '}
+                <code className="rounded bg-red-100 px-1">GROQ_API_KEY</code> in{' '}
                 Render Dashboard → Environment, or in{' '}
-                <code className="rounded bg-red-100 px-1 dark:bg-red-900">.env</code> for local dev (
+                <code className="rounded bg-red-100 px-1">.env</code> for local dev (
                 <a
                   href="https://console.groq.com/keys"
                   target="_blank"
@@ -260,12 +256,4 @@ function AppContent() {
   )
 }
 
-function App() {
-  return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
-  )
-}
-
-export default App
+export default AppContent

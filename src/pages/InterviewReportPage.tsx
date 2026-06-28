@@ -18,20 +18,20 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
     >
       <div className="mx-auto max-w-3xl">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-3xl font-bold text-gray-900">
             Interview Complete, {config.fullName}
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-gray-600">
             {config.topic} · {config.questionCount} questions · {report.timeTaken}
           </p>
         </div>
 
-        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-8">
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-6 text-center">
-            <p className="text-5xl font-bold text-blue-600 dark:text-blue-400">
+            <p className="text-5xl font-bold text-blue-600">
               {report.overallInterviewScore.toFixed(1)}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Overall Interview Score / 10</p>
+            <p className="text-sm text-gray-500">Overall Interview Score / 10</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -43,7 +43,7 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
         </div>
 
         <Section title="Topic Coverage">
-          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+          <p className="text-sm leading-relaxed text-gray-600">
             {report.topicCoverage}
           </p>
         </Section>
@@ -70,7 +70,7 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
             {report.recommendedLearningTopics.map((t) => (
               <span
                 key={t}
-                className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700 dark:bg-blue-950 dark:text-blue-300"
+                className="rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700"
               >
                 {t}
               </span>
@@ -79,7 +79,7 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
         </Section>
 
         <Section title="Overall Interview Summary">
-          <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400 whitespace-pre-line">
+          <p className="text-sm leading-relaxed text-gray-600 whitespace-pre-line">
             {report.overallSummary}
           </p>
         </Section>
@@ -102,8 +102,8 @@ export function InterviewReportPage({ session, report, onNewSession }: Interview
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-      <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-white">{title}</h2>
+    <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <h2 className="mb-3 text-lg font-semibold text-gray-900">{title}</h2>
       {children}
     </div>
   )
@@ -119,9 +119,9 @@ function Stat({
   isText?: boolean
 }) {
   return (
-    <div className="rounded-xl bg-gray-50 p-3 text-center dark:bg-gray-800">
-      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="mt-1 text-lg font-bold text-gray-900 dark:text-white">
+    <div className="rounded-xl bg-gray-50 p-3 text-center">
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className="mt-1 text-lg font-bold text-gray-900">
         {isText ? value : `${value}/10`}
       </p>
     </div>
@@ -139,7 +139,7 @@ function BulletList({
   return (
     <ul className="space-y-2">
       {items.map((item) => (
-        <li key={item} className="flex gap-2 text-sm text-gray-600 dark:text-gray-400">
+        <li key={item} className="flex gap-2 text-sm text-gray-600">
           <span className={dot}>•</span> {item}
         </li>
       ))}

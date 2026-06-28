@@ -9,7 +9,6 @@ A modern AI-powered interview preparation platform. Generate fresh, high-quality
 - **MCQ Mode:** Multiple-choice with instant feedback and explanations
 - **Interview Mode:** Open-ended questions, typed answers, AI evaluation, and hiring-manager report
 - Configurable question count (25–200) and difficulty (Easy, Intermediate, Advanced, Mixed)
-- Dark and light mode
 - Progress saved in Local Storage
 
 ## Tech Stack

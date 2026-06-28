@@ -104,7 +104,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
         <button
           type="button"
           onClick={onBack}
-          className="mb-6 flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+          className="mb-6 flex items-center gap-1 text-sm text-gray-500 transition-colors hover:text-gray-900"
         >
           ← Back to mode selection
         </button>
@@ -114,13 +114,13 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <span className="mb-4 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+          <span className="mb-4 inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
             {mode === 'mcq' ? '☑️ MCQ Practice' : '💬 Interview Practice'}
           </span>
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-4xl">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             Configure Session
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-gray-600 dark:text-gray-400">
+          <p className="mt-3 text-base leading-relaxed text-gray-600">
             {mode === 'mcq'
               ? 'Set up your multiple-choice practice session.'
               : 'Set up your AI interviewer session. Questions are generated for your exact topic, difficulty, and count.'}
@@ -131,7 +131,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950"
           >
             <p className="font-semibold">Free AI key required (Groq)</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -148,14 +148,14 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                 (no credit card)
               </li>
               <li>
-                Open <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">.env</code> in the{' '}
-                <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">power-bi-interview-quiz</code>{' '}
+                Open <code className="rounded bg-amber-100 px-1">.env</code> in the{' '}
+                <code className="rounded bg-amber-100 px-1">power-bi-interview-quiz</code>{' '}
                 folder and set{' '}
-                <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY=gsk_...</code>
+                <code className="rounded bg-amber-100 px-1">GROQ_API_KEY=gsk_...</code>
               </li>
               <li>
                 Restart the dev server:{' '}
-                <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code>
+                <code className="rounded bg-amber-100 px-1">npm run dev</code>
               </li>
             </ol>
           </motion.div>
@@ -165,7 +165,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950"
           >
             <p className="font-semibold">Groq API key missing on Render</p>
             <ol className="mt-2 list-decimal space-y-1 pl-5">
@@ -184,11 +184,11 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                 Go to <strong>Environment</strong> in the left sidebar
               </li>
               <li>
-                Add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">AI_PROVIDER</code>{' '}
-                = <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">groq</code>
+                Add <code className="rounded bg-amber-100 px-1">AI_PROVIDER</code>{' '}
+                = <code className="rounded bg-amber-100 px-1">groq</code>
               </li>
               <li>
-                Add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY</code>{' '}
+                Add <code className="rounded bg-amber-100 px-1">GROQ_API_KEY</code>{' '}
                 = your key from{' '}
                 <a
                   href="https://console.groq.com/keys"
@@ -211,18 +211,18 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100"
+            className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm leading-relaxed text-amber-950"
           >
             <p className="font-semibold">AI server not connected</p>
             <p className="mt-2">
               GitHub Pages only hosts the website files — it cannot run the AI backend. To start
               interviews, use the app on{' '}
               <strong>Render</strong> (recommended) or run{' '}
-              <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">npm run dev</code> on
+              <code className="rounded bg-amber-100 px-1">npm run dev</code> on
               your computer.
             </p>
             <p className="mt-2">
-              Deploy to Render, add <code className="rounded bg-amber-100 px-1 dark:bg-amber-900">GROQ_API_KEY</code>{' '}
+              Deploy to Render, add <code className="rounded bg-amber-100 px-1">GROQ_API_KEY</code>{' '}
               in Environment settings, then share that URL with users — they do not need their own API
               key.
             </p>
@@ -234,10 +234,10 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           onSubmit={handleSubmit}
-          className="space-y-7 rounded-2xl border border-gray-200 bg-white p-7 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:space-y-8 sm:p-10"
+          className="space-y-7 rounded-2xl border border-gray-200 bg-white p-7 shadow-sm sm:space-y-8 sm:p-10"
         >
           <div className="space-y-3">
-            <label htmlFor="full-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="full-name" className="block text-sm font-medium text-gray-700">
               Full Name
             </label>
             <input
@@ -253,7 +253,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           </div>
 
           <div className="space-y-3">
-            <label htmlFor="topic" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="topic" className="block text-sm font-medium text-gray-700">
               Interview Topic
             </label>
             <input
@@ -273,8 +273,8 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                   onClick={() => setTopic(example)}
                   className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                     topic === example
-                      ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-300'
-                      : 'border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-gray-700 dark:text-gray-400 dark:hover:border-blue-700 dark:hover:bg-blue-950 dark:hover:text-blue-300'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 text-gray-600 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700'
                   }`}
                 >
                   {example}
@@ -282,14 +282,14 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
               ))}
             </div>
             {topic.trim() && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                AI will generate questions for: <span className="font-medium text-gray-700 dark:text-gray-300">{topic.trim()}</span>
+              <p className="text-xs text-gray-500">
+                AI will generate questions for: <span className="font-medium text-gray-700">{topic.trim()}</span>
               </p>
             )}
           </div>
 
           <div className="space-y-3">
-            <label htmlFor="question-count" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label htmlFor="question-count" className="block text-sm font-medium text-gray-700">
               Number of Questions
             </label>
             <select
@@ -307,7 +307,7 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
           </div>
 
           <fieldset className="space-y-4">
-            <legend className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <legend className="block text-sm font-medium text-gray-700">
               Difficulty
             </legend>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -316,8 +316,8 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
                   key={level}
                   className={`flex cursor-pointer items-center justify-center rounded-xl border px-4 py-3 text-sm font-medium transition-colors ${
                     difficulty === level
-                      ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-500 dark:bg-blue-950 dark:text-blue-300'
-                      : 'border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-700 dark:text-gray-400 dark:hover:border-gray-600'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 text-gray-600 hover:border-gray-300'
                   }`}
                 >
                   <input
@@ -340,12 +340,12 @@ export function HomePage({ mode, onBack, onGenerate }: HomePageProps) {
               disabled={!canGenerate}
               whileHover={canGenerate ? { scale: 1.02 } : undefined}
               whileTap={canGenerate ? { scale: 0.98 } : undefined}
-              className="w-full rounded-xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none dark:disabled:bg-gray-700"
+              className="w-full rounded-xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:shadow-none"
             >
               {mode === 'mcq' ? 'Generate Questions' : 'Start Interview'}
             </motion.button>
             {formComplete && aiConfigured === false && (
-              <p className="mt-3 text-center text-sm text-amber-700 dark:text-amber-300">
+              <p className="mt-3 text-center text-sm text-amber-700">
                 {aiSetupHint(onGitHubPages, onLocalDev, onRender)}
               </p>
             )}

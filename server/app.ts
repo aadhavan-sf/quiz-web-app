@@ -9,12 +9,13 @@ import {
   validateInterviewStart,
 } from './services/interviewService.js'
 import { generateQuestions, validateGenerateRequest } from './services/questionGenerator.js'
+import { transcribeAudio, validateTranscribeRequest } from './services/transcriptionService.js'
 
 export function createApp() {
   const app = express()
 
   app.use(cors())
-  app.use(express.json({ limit: '2mb' }))
+  app.use(express.json({ limit: '12mb' }))
 
   app.get('/api/health', (_req: Request, res: Response) => {
     res.json({ status: 'ok', aiConfigured: isAiConfigured(), provider: getAiProvider() })
@@ -56,6 +57,17 @@ export function createApp() {
       res.json({ evaluation, nextQuestion, isComplete })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to evaluate answer'
+      res.status(400).json({ error: message })
+    }
+  })
+
+  app.post('/api/transcribe', async (req: Request, res: Response) => {
+    try {
+      const { audioBase64, mimeType, topic } = validateTranscribeRequest(req.body)
+      const text = await transcribeAudio(audioBase64, mimeType, topic)
+      res.json({ text })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Transcription failed'
       res.status(400).json({ error: message })
     }
   })

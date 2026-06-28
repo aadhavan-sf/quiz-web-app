@@ -48,17 +48,17 @@ export function QuestionCard({ question, answer, onSelect }: QuestionCardProps) 
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.3 }}
-      className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-8"
+      className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-8"
     >
       <div className="mb-4 flex flex-wrap gap-2">
-        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+        <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
           {question.subtopic}
         </span>
-        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+        <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
           {question.difficulty}
         </span>
       </div>
-      <h2 className="mb-6 text-lg font-semibold leading-relaxed text-gray-900 dark:text-white sm:text-xl">
+      <h2 className="mb-6 text-lg font-semibold leading-relaxed text-gray-900 sm:text-xl">
         {question.question}
       </h2>
 
@@ -85,21 +85,21 @@ export function QuestionCard({ question, answer, onSelect }: QuestionCardProps) 
             className="mt-6 overflow-hidden"
           >
             {answer.isCorrect ? (
-              <div className="rounded-xl bg-green-50 p-4 dark:bg-green-950/50">
-                <p className="font-semibold text-green-800 dark:text-green-300">✅ Correct!</p>
-                <p className="mt-2 text-sm leading-relaxed text-green-700 dark:text-green-400">
+              <div className="rounded-xl bg-green-50 p-4">
+                <p className="font-semibold text-green-800">✅ Correct!</p>
+                <p className="mt-2 text-sm leading-relaxed text-green-700">
                   {question.explanation}
                 </p>
               </div>
             ) : (
-              <div className="rounded-xl bg-red-50 p-4 dark:bg-red-950/50">
-                <p className="font-semibold text-red-800 dark:text-red-300">❌ Incorrect</p>
-                <p className="mt-2 text-sm text-red-700 dark:text-red-400">
+              <div className="rounded-xl bg-red-50 p-4">
+                <p className="font-semibold text-red-800">❌ Incorrect</p>
+                <p className="mt-2 text-sm text-red-700">
                   <span className="font-medium">Correct Answer:</span>{' '}
                   {getOptionLabel(question.correctAnswer)} —{' '}
                   {question.options[question.correctAnswer]}
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-red-700 dark:text-red-400">
+                <p className="mt-2 text-sm leading-relaxed text-red-700">
                   <span className="font-medium">Explanation:</span> {question.explanation}
                 </p>
               </div>

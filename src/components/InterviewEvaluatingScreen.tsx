@@ -19,7 +19,7 @@ export function InterviewEvaluatingScreen() {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 px-6 dark:bg-gray-950/95"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-white/95 px-6"
       role="status"
       aria-live="polite"
       aria-busy="true"
@@ -33,12 +33,12 @@ export function InterviewEvaluatingScreen() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25 }}
-            className="text-lg font-medium text-gray-900 dark:text-white"
+            className="text-lg font-medium text-gray-900"
           >
             {MESSAGES[messageIndex]}
           </motion.p>
         </AnimatePresence>
-        <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">Please wait while the AI evaluates your response.</p>
+        <p className="mt-3 text-sm text-gray-500">Please wait while the AI evaluates your response.</p>
       </div>
     </div>
   )

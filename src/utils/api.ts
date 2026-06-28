@@ -70,6 +70,14 @@ export function fetchInterviewReport(
   return post('/api/interview/report', request)
 }
 
+export function transcribeRecording(
+  audioBase64: string,
+  mimeType: string,
+  topic?: string,
+): Promise<{ text: string }> {
+  return post('/api/transcribe', { audioBase64, mimeType, topic })
+}
+
 export async function fetchHealth(): Promise<{
   status: string
   aiConfigured: boolean

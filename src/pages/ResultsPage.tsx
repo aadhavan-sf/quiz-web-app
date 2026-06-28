@@ -41,10 +41,10 @@ export function ResultsPage({
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 text-center"
         >
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white sm:text-4xl">
+          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">
             {leftEarly ? `Session Ended, ${userName}` : `Congratulations, ${userName}!`}
           </h1>
-          <p className="mt-2 text-gray-600 dark:text-gray-400">
+          <p className="mt-2 text-gray-600">
             {leftEarly
               ? `You answered ${answeredCount} of ${totalQuestions} ${topic} questions.`
               : `You completed all ${totalQuestions} ${topic} questions.`}
@@ -55,13 +55,13 @@ export function ResultsPage({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-8"
+          className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8"
         >
           <div className="mb-6 flex flex-col items-center gap-3">
-            <p className="text-5xl font-bold text-gray-900 dark:text-white">{displayPercentage}%</p>
+            <p className="text-5xl font-bold text-gray-900">{displayPercentage}%</p>
             <PerformanceBadge level={displayPerformance} />
             {leftEarly && (
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-gray-500">
                 Accuracy based on {answeredCount} answered question{answeredCount !== 1 ? 's' : ''}
               </p>
             )}
@@ -69,8 +69,8 @@ export function ResultsPage({
 
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label="Total" value={totalQuestions} />
-            <StatCard label="Correct" value={correctCount} color="text-green-600 dark:text-green-400" />
-            <StatCard label="Incorrect" value={wrongCount} color="text-red-600 dark:text-red-400" />
+            <StatCard label="Correct" value={correctCount} color="text-green-600" />
+            <StatCard label="Incorrect" value={wrongCount} color="text-red-600" />
             <StatCard label="Time" value={formatTime(elapsedSeconds)} />
           </div>
         </motion.div>
@@ -82,35 +82,35 @@ export function ResultsPage({
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            <h2 className="mb-4 text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="mb-4 text-xl font-semibold text-gray-900">
               Review Incorrect Answers ({incorrectQuestions.length})
             </h2>
             <div className="space-y-4">
               {incorrectQuestions.map(({ question, selectedAnswer }) => (
                 <div
                   key={question.id}
-                  className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                  className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
                 >
                   <div className="mb-2 flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-gray-600">
                       {question.subtopic}
                     </span>
-                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700 dark:bg-blue-950 dark:text-blue-300">
+                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-blue-700">
                       {question.difficulty}
                     </span>
                   </div>
-                  <p className="mb-3 font-medium text-gray-900 dark:text-white">{question.question}</p>
+                  <p className="mb-3 font-medium text-gray-900">{question.question}</p>
                   <div className="space-y-1.5 text-sm">
-                    <p className="text-red-700 dark:text-red-400">
+                    <p className="text-red-700">
                       <span className="font-medium">Your Answer:</span>{' '}
                       {getOptionLabel(selectedAnswer)} — {question.options[selectedAnswer]}
                     </p>
-                    <p className="text-green-700 dark:text-green-400">
+                    <p className="text-green-700">
                       <span className="font-medium">Correct Answer:</span>{' '}
                       {getOptionLabel(question.correctAnswer)} —{' '}
                       {question.options[question.correctAnswer]}
                     </p>
-                    <p className="text-gray-600 dark:text-gray-400">
+                    <p className="text-gray-600">
                       <span className="font-medium">Explanation:</span> {question.explanation}
                     </p>
                   </div>
@@ -131,7 +131,7 @@ export function ResultsPage({
             onClick={onRestart}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800"
+            className="rounded-xl border border-gray-200 bg-white px-8 py-3.5 text-sm font-semibold text-gray-900 shadow-sm hover:bg-gray-50"
           >
             Restart Quiz
           </motion.button>
@@ -153,15 +153,15 @@ export function ResultsPage({
 function StatCard({
   label,
   value,
-  color = 'text-gray-900 dark:text-white',
+  color = 'text-gray-900',
 }: {
   label: string
   value: string | number
   color?: string
 }) {
   return (
-    <div className="rounded-xl bg-gray-50 p-4 text-center dark:bg-gray-800">
-      <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+    <div className="rounded-xl bg-gray-50 p-4 text-center">
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
         {label}
       </p>
       <p className={`mt-1 text-2xl font-bold ${color}`}>{value}</p>

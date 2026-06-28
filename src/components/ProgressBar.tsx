@@ -10,7 +10,7 @@ export function ProgressBar({ percentage, className = '' }: ProgressBarProps) {
 
   return (
     <div
-      className={`h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800 ${className}`}
+      className={`h-2 w-full overflow-hidden rounded-full bg-gray-200 ${className}`}
       role="progressbar"
       aria-valuenow={clamped}
       aria-valuemin={0}

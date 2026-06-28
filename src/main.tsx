@@ -1,13 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
+import { isSpeechDevRoute } from './devRouting'
+import { SpeechTestPage } from './pages/dev/SpeechTestPage'
 import './index.css'
-import { initTheme } from './utils/storage'
-
-initTheme()
 
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+  isSpeechDevRoute() ? (
+    <SpeechTestPage />
+  ) : (
+    <StrictMode>
+      <App />
+    </StrictMode>
+  ),
 )
