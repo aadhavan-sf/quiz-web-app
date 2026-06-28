@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export function useLocalStorage<T>(key: string, initialValue: T) {
   const [storedValue, setStoredValue] = useState<T>(() => {
@@ -65,4 +65,42 @@ export function usePracticeTimer(
   const isExpired = limitSeconds !== null && elapsedSeconds >= limitSeconds
 
   return { elapsedSeconds, remainingSeconds, isExpired, hasLimit, limitSeconds }
+}
+
+/** Drop corrupt elapsed values written before the double-count timer bug was fixed. */
+export function normalizeSavedElapsed(
+  saved: number | undefined,
+  timeLimitMinutes?: number | null,
+): number {
+  if (saved == null || saved < 0) return 0
+  const limitSeconds =
+    timeLimitMinutes != null && timeLimitMinutes > 0 ? timeLimitMinutes * 60 : null
+  const maxSane = limitSeconds != null ? limitSeconds + 120 : 6 * 60 * 60
+  return saved > maxSane ? 0 : saved
+}
+
+/**
+ * Timer for sessions that can be left and resumed. Saved elapsed is captured once
+ * per session key; live ticks are added on top without feeding back into the base.
+ */
+export function useResumableSessionTimer(
+  sessionKey: string | number | null | undefined,
+  savedElapsedSeconds: number | undefined,
+  timeLimitMinutes?: number | null,
+) {
+  const baseRef = useRef(0)
+  const sinceRef = useRef(Date.now())
+  const keyRef = useRef<typeof sessionKey>(undefined)
+
+  if (sessionKey != null && sessionKey !== keyRef.current) {
+    keyRef.current = sessionKey
+    baseRef.current = normalizeSavedElapsed(savedElapsedSeconds, timeLimitMinutes)
+    sinceRef.current = Date.now()
+  }
+
+  return usePracticeTimer(
+    sessionKey != null ? sinceRef.current : null,
+    baseRef.current,
+    timeLimitMinutes,
+  )
 }

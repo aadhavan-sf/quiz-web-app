@@ -33,10 +33,10 @@ import { clearQuizData, getUserName, setUserName } from './utils/storage'
 import { isSupabaseConfigured } from './lib/supabase'
 import {
   deletePracticeSession,
-  fetchInProgressSessionForMode,
+  fetchInProgressSessionForModeAndTopic,
 } from './services/sessionService'
 import { scrollToTop } from './utils/scrollToTop'
-import { getSessionProgress, isSameTopic, sessionTopic } from './utils/sessionProgress'
+import { getSessionProgress, sessionTopic } from './utils/sessionProgress'
 
 const PROTECTED_SCREENS: AppScreen[] = [
   'mode-select',
@@ -191,16 +191,13 @@ function AppContent() {
       if (user && isConfigured) {
         const mode = request.mode ?? practiceMode
         if (mode) {
-          const existing = await fetchInProgressSessionForMode(user.id, mode).catch(() => null)
+          const existing = await fetchInProgressSessionForModeAndTopic(
+            user.id,
+            mode,
+            request.topic,
+          ).catch(() => null)
           if (existing) {
-            const existingTopic = sessionTopic(existing)
-            if (isSameTopic(existingTopic, request.topic)) {
-              setPendingGenerate({ session: existing, request })
-              return
-            }
-            setError(
-              `You already have an unfinished ${mode === 'mcq' ? 'MCQ' : 'interview'} session on ${existingTopic}. Complete it or choose a different topic before starting a new one.`,
-            )
+            setPendingGenerate({ session: existing, request })
             return
           }
         }

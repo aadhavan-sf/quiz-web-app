@@ -8,7 +8,6 @@ interface SessionPageHeaderProps {
   userName: string
   avatarUrl?: string | null
   leaveButton: ReactNode
-  elapsedSeconds: number
   remainingSeconds: number | null
   hasLimit: boolean
 }
@@ -19,12 +18,10 @@ export function SessionPageHeader({
   userName,
   avatarUrl,
   leaveButton,
-  elapsedSeconds,
   remainingSeconds,
   hasLimit,
 }: SessionPageHeaderProps) {
   const timerProps = {
-    elapsedSeconds,
     remainingSeconds,
     hasLimit,
   }

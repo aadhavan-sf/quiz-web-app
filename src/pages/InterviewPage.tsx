@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { InterviewAnswerInput } from '../components/InterviewAnswerInput'
 import { InterviewBottomBar } from '../components/InterviewBottomBar'
 import { InterviewEvaluatingScreen } from '../components/InterviewEvaluatingScreen'
@@ -9,7 +9,7 @@ import { InterviewQuestionTracker } from '../components/InterviewQuestionTracker
 import { LeaveSessionButton } from '../components/LeaveSessionButton'
 import { SessionPageHeader } from '../components/SessionPageHeader'
 import { useAuth } from '../context/AuthContext'
-import { usePracticeTimer } from '../hooks/useLocalStorage'
+import { useResumableSessionTimer } from '../hooks/useLocalStorage'
 import { useInterviewSessionSync } from '../hooks/useSessionSync'
 import { useTimedSpeechTips } from '../hooks/useTimedSpeechTips'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
@@ -45,12 +45,11 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
   const [reviewIndex, setReviewIndex] = useState<number | null>(null)
 
   const { config, currentQuestion, currentQuestionIndex, phase, history } = session
-  const activeSinceRef = useRef(Date.now())
-  const baseElapsed = session.elapsedSeconds ?? 0
+  const sessionKey = session.sessionId ?? session.startedAt
 
-  const { elapsedSeconds, remainingSeconds, isExpired, hasLimit } = usePracticeTimer(
-    activeSinceRef.current,
-    baseElapsed,
+  const { elapsedSeconds, remainingSeconds, isExpired, hasLimit } = useResumableSessionTimer(
+    sessionKey,
+    session.elapsedSeconds,
     config.timeLimitMinutes,
   )
   const speech = useSpeechRecognition({ topic: config.topic })
@@ -348,7 +347,6 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
           assessmentLabel={`Interview Practice · ${config.difficulty}`}
           userName={config.fullName}
           avatarUrl={avatarUrl}
-          elapsedSeconds={elapsedSeconds}
           remainingSeconds={remainingSeconds}
           hasLimit={hasLimit}
           leaveButton={

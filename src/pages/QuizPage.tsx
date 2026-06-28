@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MobileSessionBar, mobileSessionBarPadding } from '../components/MobileSessionBar'
 import { QuestionCard } from '../components/QuestionCard'
@@ -6,7 +6,7 @@ import { QuestionTracker } from '../components/QuestionTracker'
 import { LeaveSessionButton } from '../components/LeaveSessionButton'
 import { SessionPageHeader } from '../components/SessionPageHeader'
 import { useAuth } from '../context/AuthContext'
-import { usePracticeTimer } from '../hooks/useLocalStorage'
+import { useResumableSessionTimer } from '../hooks/useLocalStorage'
 import { useQuizSessionSync } from '../hooks/useSessionSync'
 import type { useQuiz } from '../hooks/useQuiz'
 
@@ -37,12 +37,10 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
     isComplete,
   } = quiz
 
-  const activeSinceRef = useRef(Date.now())
-  const baseElapsed = quizState?.elapsedSeconds ?? 0
-
-  const { elapsedSeconds, remainingSeconds, isExpired, hasLimit } = usePracticeTimer(
-    activeSinceRef.current,
-    baseElapsed,
+  const sessionKey = quizState?.sessionId ?? quizState?.startedAt
+  const { elapsedSeconds, remainingSeconds, isExpired, hasLimit } = useResumableSessionTimer(
+    sessionKey,
+    quizState?.elapsedSeconds,
     quizState?.config.timeLimitMinutes,
   )
 
@@ -91,7 +89,6 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
           assessmentLabel={`MCQ Practice · ${config.difficulty}`}
           userName={config.fullName}
           avatarUrl={avatarUrl}
-          elapsedSeconds={elapsedSeconds}
           remainingSeconds={remainingSeconds}
           hasLimit={hasLimit}
           leaveButton={

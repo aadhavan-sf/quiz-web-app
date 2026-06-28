@@ -6,7 +6,6 @@ import { AppUserHeader } from '../components/AppUserHeader'
 import { useAuth } from '../context/AuthContext'
 import {
   fetchInProgressSessions,
-  latestSessionPerMode,
 } from '../services/sessionService'
 import type { StoredPracticeSession } from '../types/question'
 import { getSessionProgress, sessionTopic } from '../utils/sessionProgress'
@@ -50,7 +49,13 @@ export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelecti
     }
     setLoadingSessions(true)
     fetchInProgressSessions(user.id)
-      .then((sessions) => setInProgress(latestSessionPerMode(sessions)))
+      .then((sessions) =>
+        setInProgress(
+          [...sessions].sort(
+            (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+          ),
+        ),
+      )
       .catch(() => setInProgress([]))
       .finally(() => setLoadingSessions(false))
   }, [user])
@@ -106,8 +111,8 @@ export function ModeSelectionPage({ onSelect, onProfile, onResume }: ModeSelecti
           <div className="mb-8 space-y-3">
             <h2 className="text-sm font-semibold text-gray-900">Resume a session</h2>
             <p className="text-xs text-gray-600">
-              One in-progress session per assessment type. Starting the same topic again will ask
-              whether to continue or start fresh.
+              Pick a session to continue. Starting the same topic again will ask whether to
+              continue or start fresh.
             </p>
             {inProgress.map((session) => {
               const { completed, total } = getSessionProgress(session)

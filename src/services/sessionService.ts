@@ -8,6 +8,7 @@ import type {
   StoredPracticeSession,
 } from '../types/question'
 import { supabase } from '../lib/supabase'
+import { isSameTopic, sessionTopic } from '../utils/sessionProgress'
 
 function requireClient() {
   if (!supabase) throw new Error('Sign-in is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to .env.')
@@ -22,10 +23,11 @@ export async function createPracticeSession(
 ): Promise<string> {
   const client = requireClient()
 
-  const existing = await fetchInProgressSessionForMode(userId, mode)
+  const topic = 'topic' in config ? config.topic : ''
+  const existing = await fetchInProgressSessionForModeAndTopic(userId, mode, topic)
   if (existing) {
     throw new Error(
-      `You already have an unfinished ${mode === 'mcq' ? 'MCQ' : 'interview'} session. Complete it before starting a new one.`,
+      `You already have an unfinished ${mode === 'mcq' ? 'MCQ' : 'interview'} session on ${sessionTopic(existing)}. Continue it or start fresh before creating another.`,
     )
   }
 
@@ -114,6 +116,26 @@ export async function fetchInProgressSessionForMode(
 
   if (error) throw new Error(error.message)
   return (data as StoredPracticeSession | null) ?? null
+}
+
+/** In-progress session for a mode and topic, if any. */
+export async function fetchInProgressSessionForModeAndTopic(
+  userId: string,
+  mode: PracticeMode,
+  topic: string,
+): Promise<StoredPracticeSession | null> {
+  const client = requireClient()
+  const { data, error } = await client
+    .from('practice_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('mode', mode)
+    .eq('status', 'in_progress')
+    .order('updated_at', { ascending: false })
+
+  if (error) throw new Error(error.message)
+  const sessions = (data ?? []) as StoredPracticeSession[]
+  return sessions.find((s) => isSameTopic(sessionTopic(s), topic)) ?? null
 }
 
 /** One session per mode — keeps the most recently updated. */
