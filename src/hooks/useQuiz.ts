@@ -178,6 +178,15 @@ export function useQuiz() {
     [quizState, setQuizState],
   )
 
+  const syncElapsedSeconds = useCallback(
+    (seconds: number) => {
+      if (!quizState) return
+      if (quizState.elapsedSeconds === seconds) return
+      setQuizState({ ...quizState, elapsedSeconds: seconds })
+    },
+    [quizState, setQuizState],
+  )
+
   return {
     quizState,
     questions,
@@ -194,6 +203,7 @@ export function useQuiz() {
     initQuiz,
     resetQuiz,
     attachSessionId,
+    syncElapsedSeconds,
     stats,
     isComplete,
     hasSkippedUnanswered,

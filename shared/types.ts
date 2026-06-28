@@ -63,6 +63,8 @@ export interface QuizState {
   answers: Record<number, AnswerRecord>
   currentQuestionIndex: number
   startedAt: number
+  /** Active time spent in session (seconds) — persisted so resume keeps the timer */
+  elapsedSeconds?: number
   /** Question IDs marked "skip for now" — revisit via tracker */
   skippedQuestionIds?: number[]
   /** Cloud session id when logged in */
@@ -151,6 +153,8 @@ export interface InterviewSessionState {
   config: SessionConfig
   currentQuestionIndex: number
   startedAt: number
+  /** Active time spent in session (seconds) — persisted so resume keeps the timer */
+  elapsedSeconds?: number
   history: InterviewHistoryEntry[]
   currentQuestion: InterviewQuestion | null
   phase: 'answering' | 'feedback' | 'evaluating'

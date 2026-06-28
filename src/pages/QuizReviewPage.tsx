@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { MobileSessionBar } from '../components/MobileSessionBar'
 import type { AnswerRecord, Question, QuizState } from '../types/question'
 import { getOptionLabel } from '../utils/quizUtils'
 
@@ -69,17 +70,30 @@ export function QuizReviewPage({ quizState, onViewResults }: QuizReviewPageProps
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen px-4 py-8 sm:px-6 sm:py-12"
+      className="min-h-screen px-4 pb-36 sm:px-6 sm:pb-12"
     >
       <div className="mx-auto max-w-3xl lg:max-w-6xl">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Review your test</h1>
-          <p className="mt-2 text-gray-600">
-            {quizState.config.topic} · {answeredCount} of {total} questions answered
-          </p>
-        </div>
+        <header className="sticky top-0 z-10 -mx-4 border-b border-gray-200 bg-[#fafafa]/95 px-4 py-4 backdrop-blur-sm sm:-mx-6 sm:px-6 sm:py-5">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 text-left">
+              <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Review your test</h1>
+              <p className="mt-1 text-sm text-gray-600 sm:text-base">
+                {quizState.config.topic} · {answeredCount} of {total} questions answered
+              </p>
+            </div>
+            <motion.button
+              type="button"
+              onClick={onViewResults}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="hidden shrink-0 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary-700 sm:inline-flex sm:px-8 sm:py-3.5"
+            >
+              View score summary
+            </motion.button>
+          </div>
+        </header>
 
-        <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-5 pt-6 lg:grid-cols-2 lg:pt-8">
           {quizState.questions.map((question, index) => (
             <ReviewItem
               key={question.id}
@@ -89,19 +103,11 @@ export function QuizReviewPage({ quizState, onViewResults }: QuizReviewPageProps
             />
           ))}
         </div>
-
-        <div className="mt-10 flex justify-center">
-          <motion.button
-            type="button"
-            onClick={onViewResults}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="rounded-xl bg-primary-600 px-10 py-4 text-sm font-semibold text-white shadow-sm hover:bg-primary-700"
-          >
-            View score summary
-          </motion.button>
-        </div>
       </div>
+
+      <MobileSessionBar
+        primary={{ label: 'View score summary', onClick: onViewResults }}
+      />
     </motion.div>
   )
 }

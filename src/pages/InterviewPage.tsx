@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { InterviewAnswerInput } from '../components/InterviewAnswerInput'
 import { InterviewBottomBar } from '../components/InterviewBottomBar'
 import { InterviewEvaluatingScreen } from '../components/InterviewEvaluatingScreen'
@@ -30,7 +30,7 @@ import {
 interface InterviewPageProps {
   session: InterviewSessionState
   onUpdate: (session: InterviewSessionState) => void
-  onComplete: () => void
+  onComplete: (elapsedSeconds: number) => void
   onLeave: () => void
 }
 
@@ -44,9 +44,13 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
   const [feedbackAcknowledged, setFeedbackAcknowledged] = useState(false)
   const [reviewIndex, setReviewIndex] = useState<number | null>(null)
 
-  const { config, currentQuestion, currentQuestionIndex, phase, history, startedAt } = session
+  const { config, currentQuestion, currentQuestionIndex, phase, history } = session
+  const activeSinceRef = useRef(Date.now())
+  const baseElapsed = session.elapsedSeconds ?? 0
+
   const { elapsedSeconds, remainingSeconds, isExpired, hasLimit } = usePracticeTimer(
-    startedAt,
+    activeSinceRef.current,
+    baseElapsed,
     config.timeLimitMinutes,
   )
   const speech = useSpeechRecognition({ topic: config.topic })
@@ -56,7 +60,12 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
     if (session.sessionId !== sessionId) {
       onUpdate({ ...session, sessionId })
     }
-  })
+  }, elapsedSeconds)
+
+  useEffect(() => {
+    if (session.elapsedSeconds === elapsedSeconds) return
+    onUpdate({ ...session, elapsedSeconds })
+  }, [elapsedSeconds, session, onUpdate])
 
   const total = config.questionCount
   const answered = answeredIndices(history)
@@ -66,8 +75,8 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
   const pendingSkipped = pendingSkippedCount(session)
 
   useEffect(() => {
-    if (isExpired) onComplete()
-  }, [isExpired, onComplete])
+    if (isExpired) onComplete(elapsedSeconds)
+  }, [isExpired, onComplete, elapsedSeconds])
 
   const activeIndex = reviewIndex ?? currentQuestionIndex
   const reviewEntry = reviewIndex !== null ? getHistoryForIndex(history, reviewIndex) : null
@@ -276,13 +285,13 @@ export function InterviewPage({ session, onUpdate, onComplete, onLeave }: Interv
     }
 
     if (complete) {
-      onComplete()
+      onComplete(elapsedSeconds)
       return
     }
 
     const open = findNextOpenIndex(session, currentQuestionIndex)
     if (open === null) {
-      onComplete()
+      onComplete(elapsedSeconds)
       return
     }
 

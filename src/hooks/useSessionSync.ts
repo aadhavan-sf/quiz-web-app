@@ -11,18 +11,21 @@ const SYNC_DEBOUNCE_MS = 800
 
 export function useQuizSessionSync(
   quizState: QuizState | null,
-  onSessionId: (sessionId: string) => void,
+  onSessionId: (id: string) => void,
+  elapsedSeconds: number,
 ) {
   const { user } = useAuth()
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const creatingRef = useRef(false)
 
-  useEffect(() => {
-    if (!user || !quizState) return
+  const stateToSync = quizState ? { ...quizState, elapsedSeconds } : null
 
-    if (!quizState.sessionId && !creatingRef.current) {
+  useEffect(() => {
+    if (!user || !stateToSync) return
+
+    if (!stateToSync.sessionId && !creatingRef.current) {
       creatingRef.current = true
-      createPracticeSession(user.id, 'mcq', quizState.config, quizState)
+      createPracticeSession(user.id, 'mcq', stateToSync.config, stateToSync)
         .then((id) => onSessionId(id))
         .catch(() => {})
         .finally(() => {
@@ -31,17 +34,20 @@ export function useQuizSessionSync(
       return
     }
 
-    if (!quizState.sessionId) return
+    if (!stateToSync.sessionId) return
 
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
-      updatePracticeSession(quizState.sessionId!, quizState).catch(() => {})
+      updatePracticeSession(stateToSync.sessionId!, stateToSync).catch(() => {})
     }, SYNC_DEBOUNCE_MS)
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
+      if (stateToSync.sessionId) {
+        updatePracticeSession(stateToSync.sessionId, stateToSync).catch(() => {})
+      }
     }
-  }, [user, quizState, onSessionId])
+  }, [user, stateToSync, onSessionId])
 }
 
 export async function persistCompletedQuiz(
@@ -55,17 +61,20 @@ export async function persistCompletedQuiz(
 export function useInterviewSessionSync(
   session: InterviewSessionState | null,
   onSessionId: (sessionId: string) => void,
+  elapsedSeconds: number,
 ) {
   const { user } = useAuth()
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const creatingRef = useRef(false)
 
-  useEffect(() => {
-    if (!user || !session) return
+  const stateToSync = session ? { ...session, elapsedSeconds } : null
 
-    if (!session.sessionId && !creatingRef.current) {
+  useEffect(() => {
+    if (!user || !stateToSync) return
+
+    if (!stateToSync.sessionId && !creatingRef.current) {
       creatingRef.current = true
-      createPracticeSession(user.id, 'interview', session.config, session)
+      createPracticeSession(user.id, 'interview', stateToSync.config, stateToSync)
         .then((id) => onSessionId(id))
         .catch(() => {})
         .finally(() => {
@@ -74,17 +83,20 @@ export function useInterviewSessionSync(
       return
     }
 
-    if (!session.sessionId) return
+    if (!stateToSync.sessionId) return
 
     if (timerRef.current) clearTimeout(timerRef.current)
     timerRef.current = setTimeout(() => {
-      updatePracticeSession(session.sessionId!, session).catch(() => {})
+      updatePracticeSession(stateToSync.sessionId!, stateToSync).catch(() => {})
     }, SYNC_DEBOUNCE_MS)
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
+      if (stateToSync.sessionId) {
+        updatePracticeSession(stateToSync.sessionId, stateToSync).catch(() => {})
+      }
     }
-  }, [user, session, onSessionId])
+  }, [user, stateToSync, onSessionId])
 }
 
 export async function persistCompletedInterview(

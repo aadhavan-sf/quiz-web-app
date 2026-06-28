@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { MobileSessionBar, mobileSessionBarPadding } from '../components/MobileSessionBar'
 import { QuestionCard } from '../components/QuestionCard'
@@ -32,16 +32,26 @@ export function QuizPage({ quiz, onSubmit, onLeave }: QuizPageProps) {
     goToNextQuestion,
     canNavigateToIndex,
     attachSessionId,
+    syncElapsedSeconds,
     stats,
     isComplete,
   } = quiz
 
-  useQuizSessionSync(quizState, attachSessionId)
+  const activeSinceRef = useRef(Date.now())
+  const baseElapsed = quizState?.elapsedSeconds ?? 0
 
   const { elapsedSeconds, remainingSeconds, isExpired, hasLimit } = usePracticeTimer(
-    quizState?.startedAt ?? null,
+    activeSinceRef.current,
+    baseElapsed,
     quizState?.config.timeLimitMinutes,
   )
+
+  useQuizSessionSync(quizState, attachSessionId, elapsedSeconds)
+
+  useEffect(() => {
+    if (!quizState) return
+    syncElapsedSeconds(elapsedSeconds)
+  }, [elapsedSeconds, quizState, syncElapsedSeconds])
 
   useEffect(() => {
     if (isExpired && quizState && isComplete) onSubmit()

@@ -51,8 +51,13 @@ export function useTimer(isRunning: boolean, startTime: number | null) {
   return elapsedSeconds
 }
 
-export function usePracticeTimer(startTime: number | null, timeLimitMinutes?: number | null) {
-  const elapsedSeconds = useTimer(true, startTime)
+export function usePracticeTimer(
+  activeSince: number | null,
+  baseElapsedSeconds: number,
+  timeLimitMinutes?: number | null,
+) {
+  const segmentSeconds = useTimer(true, activeSince)
+  const elapsedSeconds = baseElapsedSeconds + segmentSeconds
   const hasLimit = timeLimitMinutes != null && timeLimitMinutes > 0
   const limitSeconds = hasLimit ? (timeLimitMinutes as number) * 60 : null
   const remainingSeconds =

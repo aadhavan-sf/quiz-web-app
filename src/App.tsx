@@ -146,6 +146,7 @@ function AppContent() {
             },
             currentQuestionIndex: 0,
             startedAt: Date.now(),
+            elapsedSeconds: 0,
             history: [],
             currentQuestion: response.question,
             phase: 'answering',
@@ -168,6 +169,7 @@ function AppContent() {
             answers: {},
             currentQuestionIndex: 0,
             startedAt: Date.now(),
+            elapsedSeconds: 0,
           }
           quiz.initQuiz(state)
           setScreen('quiz')
@@ -269,13 +271,13 @@ function AppContent() {
     [interview],
   )
 
-  const handleInterviewComplete = useCallback(async () => {
+  const handleInterviewComplete = useCallback(async (finalElapsed?: number) => {
     if (!interview.session) return
     setLoadingReport(true)
     setScreen('generating')
 
     try {
-      const elapsed = Math.floor((Date.now() - interview.session.startedAt) / 1000)
+      const elapsed = finalElapsed ?? interview.session.elapsedSeconds ?? 0
       const { report } = await fetchInterviewReport({
         config: interview.session.config,
         history: interview.session.history,
@@ -298,7 +300,7 @@ function AppContent() {
 
   const handleViewResults = useCallback(async () => {
     if (!quiz.quizState) return
-    const elapsed = Math.floor((Date.now() - quiz.quizState.startedAt) / 1000)
+    const elapsed = quiz.quizState.elapsedSeconds ?? 0
     const results = calculateResults(quiz.quizState.questions, quiz.quizState.answers, elapsed)
     setSavedResults(results)
     if (user && quiz.quizState.sessionId) {
@@ -334,6 +336,7 @@ function AppContent() {
       answers: {},
       currentQuestionIndex: 0,
       startedAt: Date.now(),
+      elapsedSeconds: 0,
       sessionId: undefined,
     })
     setSavedResults(null)
@@ -343,7 +346,7 @@ function AppContent() {
   const mcqResults = useMemo(() => {
     if (savedResults) return savedResults
     if (!quiz.quizState) return null
-    const elapsed = Math.floor((Date.now() - quiz.quizState.startedAt) / 1000)
+    const elapsed = quiz.quizState.elapsedSeconds ?? 0
     return calculateResults(quiz.quizState.questions, quiz.quizState.answers, elapsed)
   }, [quiz.quizState, savedResults])
 

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { fetchCompletedSessions } from '../services/sessionService'
 import type { QuizResults, StoredPracticeSession } from '../types/question'
+import { ScoreBreakdownBar } from '../components/ScoreBreakdownBar'
 import { formatTime, getOptionLabel } from '../utils/quizUtils'
 
 interface ProfilePageProps {
@@ -77,57 +78,81 @@ export function ProfilePage({ onBack, onViewCompletedTest }: ProfilePageProps) {
           </button>
         </div>
 
-        <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-semibold text-gray-900">Completed tests</h2>
-          <p className="mt-1 text-sm text-gray-600">
-            Only fully submitted tests appear here — abandoned sessions are not listed.
-          </p>
+        <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+          <div className="sticky top-0 z-10 border-b border-gray-100 bg-white px-6 py-5">
+            <h2 className="text-lg font-semibold text-gray-900">Completed tests</h2>
+            <p className="mt-1 text-sm text-gray-600">
+              Only fully submitted tests appear here — abandoned sessions are not listed.
+            </p>
+          </div>
 
-          {loading && <p className="mt-6 text-sm text-gray-500">Loading…</p>}
+          <div className="p-6 pt-4">
+          {loading && <p className="text-sm text-gray-500">Loading…</p>}
           {error && (
-            <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               {error}
             </p>
           )}
 
           {!loading && !error && sessions.length === 0 && (
-            <p className="mt-6 text-sm text-gray-500">No completed tests yet. Finish and submit a session to see it here.</p>
+            <p className="text-sm text-gray-500">No completed tests yet. Finish and submit a session to see it here.</p>
           )}
 
-          <ul className="mt-6 space-y-3">
+          <ul className="space-y-3">
             {sessions.map((session) => {
               const config = session.config as { topic?: string; difficulty?: string; questionCount?: number }
               const results = session.results as QuizResults | null
-              const score =
-                results && session.mode === 'mcq'
-                  ? `${results.percentage}%`
-                  : results && session.mode === 'interview'
-                    ? `${(results as { overallInterviewScore?: number }).overallInterviewScore ?? '—'}%`
-                    : '—'
+              const isMcq = session.mode === 'mcq' && results
+              const score = isMcq
+                ? `${results.percentage}%`
+                : results && session.mode === 'interview'
+                  ? `${(results as { overallInterviewScore?: number }).overallInterviewScore ?? '—'}%`
+                  : '—'
 
               return (
                 <li key={session.id}>
                   <button
                     type="button"
                     onClick={() => onViewCompletedTest(session)}
-                    className="flex w-full items-center justify-between gap-4 rounded-xl border border-gray-200 px-4 py-4 text-left transition-colors hover:border-primary-300 hover:bg-primary-50/40"
+                    className="flex w-full flex-col gap-3 rounded-xl border border-gray-200 px-4 py-4 text-left transition-colors hover:border-primary-300 hover:bg-primary-50/40"
                   >
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {session.mode === 'mcq' ? 'MCQ' : 'Interview'} · {config.topic ?? 'Practice'}
-                      </p>
-                      <p className="mt-0.5 text-xs text-gray-500">
-                        {config.difficulty} · {config.questionCount} questions
-                        {session.completed_at &&
-                          ` · ${new Date(session.completed_at).toLocaleDateString()}`}
-                      </p>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900">
+                          {session.mode === 'mcq' ? 'MCQ' : 'Interview'} · {config.topic ?? 'Practice'}
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-500">
+                          {config.difficulty} · {config.questionCount} questions
+                          {session.completed_at &&
+                            ` · ${new Date(session.completed_at).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-lg font-bold text-primary-600">{score}</span>
                     </div>
-                    <span className="shrink-0 text-lg font-bold text-primary-600">{score}</span>
+
+                    {isMcq && (
+                      <>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium">
+                          <span className="text-green-700">
+                            {results.correctCount} correct
+                          </span>
+                          <span className="text-red-600">
+                            {results.wrongCount} wrong
+                          </span>
+                        </div>
+                        <ScoreBreakdownBar
+                          correct={results.correctCount}
+                          wrong={results.wrongCount}
+                          total={results.totalQuestions}
+                        />
+                      </>
+                    )}
                   </button>
                 </li>
               )
             })}
           </ul>
+          </div>
         </section>
       </div>
     </motion.div>
